@@ -11,9 +11,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ImageBackground
 } from 'react-native';
 
 import Video from 'react-native-video';
+import Slider from 'react-native-slider';
 
 export default class VideoPlayer extends Component {
   constructor(props) {
@@ -21,6 +23,7 @@ export default class VideoPlayer extends Component {
     this.onLoad = this.onLoad.bind(this);
     this.onProgress = this.onProgress.bind(this);
     this.onBuffer = this.onBuffer.bind(this);
+    this.videoPlayer = React.createRef();
   }
   state = {
     rate: 1,
@@ -54,6 +57,17 @@ export default class VideoPlayer extends Component {
       return parseFloat(this.state.currentTime) / parseFloat(this.state.duration);
     } else {
       return 0;
+    }
+  }
+
+  seekVideo(value) {
+    let paused = this.state.paused;
+    this.videoPlayer.seek(value)
+
+    if (paused === false) {
+      this.setState({
+        paused: false
+      })
     }
   }
 
@@ -125,139 +139,84 @@ export default class VideoPlayer extends Component {
     const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
 
     return (
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.fullScreen} onPress={() => {this.setState({paused: !this.state.paused})}}>
-          <Video
-            source={require('./intovert-days.mp4')}
-            style={styles.fullScreen}
-            rate={this.state.rate}
-            paused={this.state.paused}
-            volume={this.state.volume}
-            muted={this.state.muted}
-            ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-            resizeMode={this.state.resizeMode}
-            onLoad={this.onLoad}
-            onBuffer={this.onBuffer}
-            onProgress={this.onProgress}
-            onEnd={() => { AlertIOS.alert('Done!') }}
-            repeat={true}
-          />
-        </TouchableOpacity>
+      <ImageBackground source={require('./galaxy.jpg')}  style={{width: '100%', height: '100%'}}>
+        <View style={styles.container}>
+          <TouchableOpacity style={styles.fullScreen} onPress={() => {this.setState({paused: !this.state.paused})}}>
+            <Video
+              ref={ref => (this.videoPlayer = ref)}
+              source={require('./bunny.mp4')}
+              style={styles.fullScreen}
+              rate={this.state.rate}
+              paused={this.state.paused}
+              volume={this.state.volume}
+              muted={this.state.muted}
+              ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+              resizeMode={this.state.resizeMode}
+              onLoad={this.onLoad}
+              onBuffer={this.onBuffer}
+              onProgress={this.onProgress}
+              onEnd={() => { AlertIOS.alert('Done!') }}
+              repeat={true}
+            />
+          </TouchableOpacity>
 
-        <View style={styles.controls}>
-          <View style={styles.generalControls}>
-            <View style={styles.skinControl}>
-              {this.renderSkinControl('custom')}
-              {this.renderSkinControl('native')}
-              {this.renderSkinControl('embed')}
-            </View>
-          </View>
-          <View style={styles.generalControls}>
-            <View style={styles.rateControl}>
-              {this.renderRateControl(0.5)}
-              {this.renderRateControl(1.0)}
-              {this.renderRateControl(2.0)}
-            </View>
+          <View style={styles.controls}>
+            {/*<View style={styles.generalControls}>*/}
+              {/*<View style={styles.skinControl}>*/}
+                {/*{this.renderSkinControl('custom')}*/}
+                {/*{this.renderSkinControl('native')}*/}
+                {/*{this.renderSkinControl('embed')}*/}
+              {/*</View>*/}
+            {/*</View>*/}
+            {/*<View style={styles.generalControls}>*/}
+              {/*/!*<View style={styles.rateControl}>*!/*/}
+                {/*/!*{this.renderRateControl(0.5)}*!/*/}
+                {/*/!*{this.renderRateControl(1.0)}*!/*/}
+                {/*/!*{this.renderRateControl(2.0)}*!/*/}
+              {/*/!*</View>*!/*/}
 
-            <View style={styles.volumeControl}>
-              {this.renderVolumeControl(0.5)}
-              {this.renderVolumeControl(1)}
-              {this.renderVolumeControl(1.5)}
-            </View>
+              {/*/!*<View style={styles.volumeControl}>*!/*/}
+                {/*/!*{this.renderVolumeControl(0.5)}*!/*/}
+                {/*/!*{this.renderVolumeControl(1)}*!/*/}
+                {/*/!*{this.renderVolumeControl(1.5)}*!/*/}
+              {/*/!*</View>*!/*/}
 
-            <View style={styles.resizeModeControl}>
-              {this.renderResizeModeControl('cover')}
-              {this.renderResizeModeControl('contain')}
-              {this.renderResizeModeControl('stretch')}
-            </View>
-          </View>
-          <View style={styles.generalControls}>
-            {
-              (Platform.OS === 'ios') ?
-                <View style={styles.ignoreSilentSwitchControl}>
-                  {this.renderIgnoreSilentSwitchControl('ignore')}
-                  {this.renderIgnoreSilentSwitchControl('obey')}
-                </View> : null
-            }
-          </View>
+              {/*/!*<View style={styles.resizeModeControl}>*!/*/}
+                {/*/!*{this.renderResizeModeControl('cover')}*!/*/}
+                {/*/!*{this.renderResizeModeControl('contain')}*!/*/}
+                {/*/!*{this.renderResizeModeControl('stretch')}*!/*/}
+              {/*/!*</View>*!/*/}
+            {/*</View>*/}
+            {/*<View style={styles.generalControls}>*/}
+              {/*{*/}
+                {/*(Platform.OS === 'ios') ?*/}
+                  {/*<View style={styles.ignoreSilentSwitchControl}>*/}
+                    {/*{this.renderIgnoreSilentSwitchControl('ignore')}*/}
+                    {/*{this.renderIgnoreSilentSwitchControl('obey')}*/}
+                  {/*</View> : null*/}
+              {/*}*/}
+            {/*</View>*/}
 
-          <View style={styles.trackingControls}>
-            <View style={styles.progress}>
-              <View style={[styles.innerProgressCompleted, {flex: flexCompleted}]} />
-              <View style={[styles.innerProgressRemaining, {flex: flexRemaining}]} />
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
+            <Slider
+              value={this.state.currentTime}
+              maximumValue={this.state.duration}
+              onValueChange={value => this.seekVideo(value)}
+            />
 
-  renderNativeSkin() {
-    const videoStyle = this.state.skin == 'embed' ? styles.nativeVideoControls : styles.fullScreen;
-    return (
-      <View style={styles.container}>
-        <View style={styles.fullScreen}>
-          <Video
-            source={require('./intovert-days.mp4')}
-            style={videoStyle}
-            rate={this.state.rate}
-            paused={this.state.paused}
-            volume={this.state.volume}
-            muted={this.state.muted}
-            ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-            resizeMode={this.state.resizeMode}
-            onLoad={this.onLoad}
-            onBuffer={this.onBuffer}
-            onProgress={this.onProgress}
-            onEnd={() => { AlertIOS.alert('Done!') }}
-            repeat={true}
-            controls={this.state.controls}
-          />
-        </View>
-        <View style={styles.controls}>
-          <View style={styles.generalControls}>
-            <View style={styles.skinControl}>
-              {this.renderSkinControl('custom')}
-              {this.renderSkinControl('native')}
-              {this.renderSkinControl('embed')}
-            </View>
-          </View>
-          <View style={styles.generalControls}>
-            <View style={styles.rateControl}>
-              {this.renderRateControl(0.5)}
-              {this.renderRateControl(1.0)}
-              {this.renderRateControl(2.0)}
-            </View>
-
-            <View style={styles.volumeControl}>
-              {this.renderVolumeControl(0.5)}
-              {this.renderVolumeControl(1)}
-              {this.renderVolumeControl(1.5)}
-            </View>
-
-            <View style={styles.resizeModeControl}>
-              {this.renderResizeModeControl('cover')}
-              {this.renderResizeModeControl('contain')}
-              {this.renderResizeModeControl('stretch')}
-            </View>
-          </View>
-          <View style={styles.generalControls}>
-            {
-              (Platform.OS === 'ios') ?
-                <View style={styles.ignoreSilentSwitchControl}>
-                  {this.renderIgnoreSilentSwitchControl('ignore')}
-                  {this.renderIgnoreSilentSwitchControl('obey')}
-                </View> : null
-            }
+            {/*<View style={styles.trackingControls}>*/}
+              {/*<View style={styles.progress}>*/}
+                {/*<View style={[styles.innerProgressCompleted, {flex: flexCompleted}]} />*/}
+                {/*<View style={[styles.innerProgressRemaining, {flex: flexRemaining}]} />*/}
+              {/*</View>*/}
+            {/*</View>*/}
           </View>
         </View>
-
-      </View>
+      </ImageBackground>
     );
   }
 
   render() {
-    return this.state.controls ? this.renderNativeSkin() : this.renderCustomSkin();
+    return this.renderCustomSkin();
   }
 }
 
@@ -266,11 +225,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
+    backgroundColor: 'transparent',
   },
   fullScreen: {
-    position: 'absolute',
-    top: 0,
+    flex: 1,
+    flexDirection: 'row',
+    top: -100,
     left: 0,
     bottom: 0,
     right: 0,
@@ -279,7 +239,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderRadius: 5,
     position: 'absolute',
-    bottom: 44,
+    top: 200,
     left: 4,
     right: 4,
   },
