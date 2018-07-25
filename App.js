@@ -16,6 +16,7 @@ import {
 
 import Video from 'react-native-video';
 import Slider from 'react-native-slider';
+import moment from 'moment';
 
 export default class VideoPlayer extends Component {
   constructor(props) {
@@ -196,11 +197,16 @@ export default class VideoPlayer extends Component {
                   {/*</View> : null*/}
               {/*}*/}
             {/*</View>*/}
-
+            <Text style={styles.videoTime}>
+              {moment.utc(Math.floor(this.state.currentTime)*1000).format('HH:mm:ss')} / {moment.utc(Math.floor(this.state.duration)*1000).format('HH:mm:ss')}
+            </Text>
             <Slider
               value={this.state.currentTime}
               maximumValue={this.state.duration}
               onValueChange={value => this.seekVideo(value)}
+              trackStyle={sliderStyle.track}
+              thumbStyle={sliderStyle.thumb}
+              minimumTrackTintColor='#77B95B'
             />
 
             {/*<View style={styles.trackingControls}>*/}
@@ -220,6 +226,20 @@ export default class VideoPlayer extends Component {
   }
 }
 
+const sliderStyle = StyleSheet.create({
+  track: {
+    height: 36,
+    borderRadius: 1,
+    backgroundColor: '#77B95B',
+  },
+  thumb: {
+    width: 10,
+    height: 50,
+    borderRadius: 1,
+    backgroundColor: '#FFFFFF',
+  }
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -230,7 +250,7 @@ const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
     flexDirection: 'row',
-    top: -100,
+    top: -80,
     left: 0,
     bottom: 0,
     right: 0,
@@ -239,9 +259,9 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderRadius: 5,
     position: 'absolute',
-    top: 200,
-    left: 4,
-    right: 4,
+    top: 280,
+    left: 0,
+    right: 0,
   },
   progress: {
     flex: 1,
@@ -277,6 +297,17 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  videoTime: {
+    alignSelf: 'center',
+    fontSize: 14,
+    color: "white",
+    paddingLeft: 2,
+    paddingRight: 2,
+    lineHeight: 12,
+    paddingTop: 15,
+    zIndex: 10,
+    position: 'absolute',
   },
   resizeModeControl: {
     flex: 1,
