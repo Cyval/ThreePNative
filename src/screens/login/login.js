@@ -28,6 +28,21 @@ export default class LoginScreen extends Component {
   render() {
     return (
       <ImageBackground source={galaxyImage} style={{width: '100%', flex:1}}>
+        <Header transparent>
+          <Left>
+            <Button transparent>
+              <Icon name='arrow-back' />
+            </Button>
+          </Left>
+          <Body>
+          <Title style={{color:'white'}}>Header</Title>
+          </Body>
+          <Right>
+            <Button transparent>
+              <Icon name='menu' />
+            </Button>
+          </Right>
+        </Header>
         <View style={{flex:2, justifyContent:'flex-end'}}>
           <Image style={styles.logo}/>
           <View style={{alignSelf:'center'}}>

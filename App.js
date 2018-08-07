@@ -13,11 +13,16 @@ import React, {Component} from 'react';
 //Screens
 import TagEditor from './src/screens/tag-editor/tag-editor';
 import Login from './src/screens/login/login';
-
+import Directory from './src/screens/directory/directory';
+import Drawer from './src/screens/drawer/CustomDrawer';
 
 const store = configureStore();
 
 const screens = {
+  Directory: {
+    screen: Directory,
+    title: 'Directory'
+  },
   Login: {
     screen: Login,
     title: 'Login',
@@ -25,25 +30,29 @@ const screens = {
   TagEditor: {
     screen: TagEditor,
     title: 'Tag Editor',
-  }
+  },
 };
 //Register Screens
 const AppStackNavigator = createDrawerNavigator(
   screens,
+  {
+    contentComponent: ({navigation}) => (
+      <Drawer navigation={navigation} screens={screens}/>
+    ),
+  },
 );
-
 
 export default class App extends Component {
   render() {
     return (
       <Provider store={store}>
         <View style={{flex: 1}}>
-          <View style={styles.statusBarBackground}>
+
             <StatusBar
               backgroundColor="blue"
               barStyle="dark-content"
             />
-          </View>
+
           <AppStackNavigator/>
         </View>
       </Provider>
@@ -53,7 +62,7 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
   statusBarBackground: {
-    height: (Platform.OS === 'ios') ? 18 : 0, //this is just to test if the platform is iOS to give it a height of 18, else, no height (Android apps have their own status bar)
+    height: (Platform.OS === 'ios') ? 18 : 0,
     backgroundColor: "rgba(255,255,255,.7)",
   }
 
