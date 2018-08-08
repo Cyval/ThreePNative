@@ -20,7 +20,6 @@ import Slider from 'react-native-slider';
 import moment from 'moment';
 
 import galaxyImage from '../../../galaxy.jpg';
-import bunnyVideo from '../../../bunny.mp4';
 import NavBar from '../../components/Navbar/Navbar';
 
 export default class VideoPlayer extends Component {
@@ -185,7 +184,7 @@ export default class VideoPlayer extends Component {
               <TouchableOpacity style={styles.videoContainer} onPress={() => {this.setState({paused: !this.state.paused})}}>
                 <Video
                   ref={ref => (this.videoPlayer = ref)}
-                  source={bunnyVideo}
+                  source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
                   style={styles.fullScreen}
                   rate={this.state.rate}
                   paused={this.state.paused}
