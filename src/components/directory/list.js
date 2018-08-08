@@ -1,21 +1,24 @@
 import React, {Component} from 'react';
 import {Container, Header, Left, Body, Right, Button, Title,} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {StyleSheet, View, Text} from 'react-native'
+import {StyleSheet, View, Text, TouchableWithoutFeedback} from 'react-native'
 
 export default class List extends Component {
   render() {
     return (
-      <View style={{flexDirection:'row', width:'95%', alignSelf:'center'}}>
-        <View style={{flex:1, justifyContent:'center', }}>
-          <Icon style={{alignSelf:'center'}} name={'chevron-right'} color={'white'} size={25}/>
-        </View>
-        <View style={{flex:9}}>
-          <View style={styles.listStyle}>
-            <Text style={styles.title}>{this.props.name}</Text>
+      <TouchableWithoutFeedback onPress={()=>{this.props.redirect('TagEditor')}}>
+        <View style={{flexDirection:'row', width:'95%', alignSelf:'center'}} >
+          <View style={{flex:1, justifyContent:'center', }}>
+            <Icon style={{alignSelf:'center'}} name={'chevron-right'} color={'white'} size={25}/>
+          </View>
+          <View style={{flex:9}}>
+            <View style={styles.listStyle}>
+              <Text style={styles.title}>{this.props.name}</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
+
     );
   }
 }

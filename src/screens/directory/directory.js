@@ -52,7 +52,7 @@ export default class Directory extends Component {
           <FlatList
             data={this.state.list}
             keyExtractor={this._keyExtractor}
-            renderItem={({item}) => <List {...item}/>}
+            renderItem={({item}) => <List redirect={this.props.navigation.navigate} {...item}/>}
           />
         </View>
       </ImageBackground>

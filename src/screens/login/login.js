@@ -17,6 +17,7 @@ import {Component} from "react";
 import React from "react";
 
 import galaxyImage from '../../../galaxy.jpg';
+import Logo from '../../assets/logo.png';
 
 export default class LoginScreen extends Component {
   constructor(props) {
@@ -28,23 +29,8 @@ export default class LoginScreen extends Component {
   render() {
     return (
       <ImageBackground source={galaxyImage} style={{width: '100%', flex:1}}>
-        <Header transparent>
-          <Left>
-            <Button transparent>
-              <Icon name='arrow-back' />
-            </Button>
-          </Left>
-          <Body>
-          <Title style={{color:'white'}}>Header</Title>
-          </Body>
-          <Right>
-            <Button transparent>
-              <Icon name='menu' />
-            </Button>
-          </Right>
-        </Header>
         <View style={{flex:2, justifyContent:'flex-end'}}>
-          <Image style={styles.logo}/>
+          <Image source={Logo} style={styles.logo}/>
           <View style={{alignSelf:'center'}}>
             <Text style={{color:'white'}}>Product Editor (Admin)</Text>
             <Text style={{color:'white'}}>Ver 0.0.x</Text>
@@ -75,7 +61,7 @@ export default class LoginScreen extends Component {
             <View style={{flex:1}}>
               <Button
                 style={styles.signInButton}
-                onPress={()=>{}}
+                onPress={()=>{this.props.navigation.navigate('Directory')}}
                 title="SIGN IN"
                 color="black"
                 backgroundColor="#fff"
@@ -130,7 +116,7 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   logo:{
-    backgroundColor:'red',
+    resizeMode:'contain',
     flex:1,
     marginTop:10,
     marginBottom:10,

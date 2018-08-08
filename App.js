@@ -19,13 +19,13 @@ import Drawer from './src/screens/drawer/CustomDrawer';
 const store = configureStore();
 
 const screens = {
-  Directory: {
-    screen: Directory,
-    title: 'Directory'
-  },
   Login: {
     screen: Login,
     title: 'Login',
+  },
+  Directory: {
+    screen: Directory,
+    title: 'Directory'
   },
   TagEditor: {
     screen: TagEditor,
