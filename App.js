@@ -29,7 +29,7 @@ const screens = {
   },
   TagEditor: {
     screen: TagEditor,
-    title: 'Tag Editor',
+    title: 'TagEditor',
   },
 };
 //Register Screens
@@ -48,10 +48,10 @@ export default class App extends Component {
       <Provider store={store}>
         <View style={{flex: 1}}>
 
-            <StatusBar
-              backgroundColor="blue"
-              barStyle="dark-content"
-            />
+          <StatusBar
+            backgroundColor="blue"
+            barStyle="dark-content"
+          />
 
           <AppStackNavigator/>
         </View>
