@@ -11,7 +11,7 @@ export default class Navbar extends Component {
 
       <Header transparent>
         <Left>
-          <Button transparent>
+          <Button transparent onPress={()=>{this.props.navigation.openDrawer()}}>
             <Image source={elip} style={{width:30,height:30,resizeMode:'contain'}}/>
           </Button>
         </Left>
@@ -19,7 +19,7 @@ export default class Navbar extends Component {
         <Title style={{color: 'white', fontSize: 25, fontFamily: 'HelveticaNeue'}}>Directory</Title>
         </Body>
         <Right>
-          <Button transparent>
+          <Button transparent onPress={()=>{this.props.navigation.goBack()}}>
             <Image source={cog} style={{width:30,height:30}}/>
           </Button>
         </Right>
