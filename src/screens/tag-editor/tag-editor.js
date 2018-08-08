@@ -21,6 +21,7 @@ import moment from 'moment';
 
 import galaxyImage from '../../../galaxy.jpg';
 import bunnyVideo from '../../../bunny.mp4';
+import NavBar from '../../components/Navbar/Navbar';
 
 export default class VideoPlayer extends Component {
   constructor(props) {
@@ -177,22 +178,7 @@ export default class VideoPlayer extends Component {
     return (
       <Container>
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
-
-          <Header transparent>
-            <Left>
-              <Button transparent>
-                <Icon name='arrow-back' style={{color: '#8EA2C2'}}/>
-              </Button>
-            </Left>
-            <Body>
-            <Title style={{color: 'white'}}>REBOOK</Title>
-            </Body>
-            <Right>
-              <Button transparent>
-                <Icon name='settings' style={{color: '#8EA2C2'}} />
-              </Button>
-            </Right>
-          </Header>
+          <NavBar {...this.props}/>
 
           <View style={{flex: 1}}>
             <View style={{height:272, width:"100%"}}>
@@ -226,7 +212,7 @@ export default class VideoPlayer extends Component {
                 trackStyle={sliderStyle.track}
                 thumbStyle={sliderStyle.thumb}
                 minimumTrackTintColor='#77B95B'
-              />`
+              />
               <View style={styles.skipperContainer}>
 
               </View>
@@ -236,11 +222,7 @@ export default class VideoPlayer extends Component {
                 {this.renderSkipperButtons()}
 
               </View>
-
             </View>
-
-
-
           </View>
 
         </ImageBackground>
