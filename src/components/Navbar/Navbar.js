@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {Container, Header, Left, Body, Right, Button, Title,} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {StyleSheet} from 'react-native'
+import {StyleSheet, Image} from 'react-native'
+import cog from '../../assets/cog.png';
+import elip from '../../assets/elip.png';
 
 export default class Navbar extends Component {
   render() {
@@ -10,7 +12,7 @@ export default class Navbar extends Component {
       <Header transparent>
         <Left>
           <Button transparent>
-            <Icon name='bars' color={'white'} size={30} onPress={()=>{this.props.navigation.openDrawer()}}/>
+            <Image source={elip} style={{width:30,height:30,resizeMode:'contain'}}/>
           </Button>
         </Left>
         <Body>
@@ -18,7 +20,7 @@ export default class Navbar extends Component {
         </Body>
         <Right>
           <Button transparent>
-            <Icon name='cog' color={'white'} size={30} onPress={()=>{this.props.navigation.goBack()}}/>
+            <Image source={cog} style={{width:30,height:30}}/>
           </Button>
         </Right>
       </Header>
@@ -26,6 +28,8 @@ export default class Navbar extends Component {
   }
 }
 
+{/*<Icon name='bars' color={'white'} size={30} onPress={()=>{this.props.navigation.openDrawer()}}/>*/}
+{/*<Icon name='cog' color={'white'} size={30} onPress={()=>{this.props.navigation.goBack()}}/>*/}
 
 const styles = StyleSheet.create({
   header: {
