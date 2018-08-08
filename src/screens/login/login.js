@@ -11,7 +11,7 @@ import {
   TextInput,
 } from 'react-native';
 
-import { Container } from 'native-base'
+import { Container, Header, Left, Right, Icon, Body, Title, } from 'native-base'
 import { Button } from 'react-native-elements'
 import {Component} from "react";
 import React from "react";
