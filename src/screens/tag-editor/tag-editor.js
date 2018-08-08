@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
   ImageBackground
 } from 'react-native';
@@ -41,6 +42,7 @@ export default class VideoPlayer extends Component {
     skin: 'custom',
     ignoreSilentSwitch: null,
     isBuffering: false,
+    skipButton: [true, false, false, false, false]
   };
 
   onLoad(data) {
@@ -66,13 +68,106 @@ export default class VideoPlayer extends Component {
 
   seekVideo(value) {
     let paused = this.state.paused;
-    this.videoPlayer.seek(value)
+    this.videoPlayer.seek(value);
 
     if (paused === false) {
       this.setState({
         paused: false
       })
     }
+  }
+
+  skipToSection(value) {
+    let {paused, duration} = this.state;
+
+    let skipValue = duration / 5;
+    let skipButton = [false, false, false, false, false];
+    skipButton[value] = true;
+
+    switch(value) {
+      case 0:
+        skipValue = 0;
+        break;
+      case 1:
+        skipValue = skipValue;
+        break;
+      case 2:
+        skipValue = skipValue * 2;
+        break;
+      case 3:
+        skipValue = skipValue * 3;
+        break;
+      case 4:
+        skipValue = skipValue * 4;
+        break;
+      default:
+        skipValue = 0;
+        break;
+    }
+
+    this.videoPlayer.seek(skipValue);
+
+    if (paused === false) {
+      this.setState({
+        paused: false,
+        skipButton: skipButton
+      })
+    } else {
+      this.setState({
+        paused: true,
+        skipButton: skipButton
+      })
+    }
+  }
+
+  renderSkipperButtons() {
+
+    let buttons = [];
+    let {duration, currentTime, skipButton} = this.state;
+
+    for (let i = 0; i < 5; i++)
+    {
+      let skipValue = duration / 5;
+
+      // switch(i) {
+      //   case 0:
+      //     skipValue = 0;
+      //     break;
+      //   case 1:
+      //     skipValue = skipValue;
+      //     break;
+      //   case 2:
+      //     skipValue = skipValue * 2;
+      //     break;
+      //   case 3:
+      //     skipValue = skipValue * 3;
+      //     break;
+      //   case 4:
+      //     skipValue = skipValue * 4;
+      //     break;
+      //   default:
+      //     skipValue = 0;
+      //     break;
+      // }
+
+      buttons.push(
+
+        <View style={skipButton[i] ? styles.skipperButtonActive : styles.skipperButton} key={'skipper_' + i}>
+          <TouchableWithoutFeedback onPress={() => {this.skipToSection(i)}}>
+            <View style={skipButton[i] ? styles.skipperGreen : styles.skipperGray}>
+              <Text style={styles.skipperTime}>
+                {moment.utc(Math.floor(i === 0 ? 0 : skipValue * i)*1000).format('H:mm:ss')}
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+
+
+      )
+    }
+
+    return buttons;
+
   }
 
   renderCustomSkin() {
@@ -121,7 +216,6 @@ export default class VideoPlayer extends Component {
               </TouchableOpacity>
             </View>
             <View style={styles.controls}>
-
               <Text style={textStyles.videoTime} pointerEvents="none">
                 {moment.utc(Math.floor(this.state.currentTime)*1000).format('HH:mm:ss')} / {moment.utc(Math.floor(this.state.duration)*1000).format('HH:mm:ss')}
               </Text>
@@ -132,10 +226,17 @@ export default class VideoPlayer extends Component {
                 trackStyle={sliderStyle.track}
                 thumbStyle={sliderStyle.thumb}
                 minimumTrackTintColor='#77B95B'
-              />
+              />`
               <View style={styles.skipperContainer}>
 
               </View>
+
+              <View style={styles.skipperButtonContainer}>
+
+                {this.renderSkipperButtons()}
+
+              </View>
+
             </View>
 
 
@@ -324,6 +425,62 @@ const styles = StyleSheet.create({
     height: 15,
     width: '100%',
     zIndex: -1
+  },
+  skipperButtonContainer: {
+    top: -15,
+    width: '100%',
+    height: 60,
+    flex: 1,
+    flexDirection: 'row',
+  },
+  skipperButton: {
+    flex: 1,
+    width: '20%',
+    top: 10,
+    backgroundColor: 'transparent',
+    height: 40,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+  skipperButtonActive: {
+    flex: 1,
+    width: '20%',
+    top: 10,
+    backgroundColor: '#554358',
+    height: 40,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    paddingTop: 5,
+    paddingBottom: 5,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  skipperGreen: {
+    flex: 1,
+    width: '90%',
+    height: 45,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#77B95B',
+    borderRadius: 50,
+    borderColor: '#B9F5A0',
+    borderWidth: 3,
+    borderStyle: 'solid',
+  },
+  skipperGray: {
+    flex: 1,
+    width: '90%',
+    height: 45,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#AAA',
+    borderRadius: 50
+  },
+  skipperTime: {
+    alignSelf: 'center',
+    color: '#FFFFFF',
   },
   controls: {
     flex:1,
