@@ -15,6 +15,7 @@ import { Container, Header, Left, Right, Icon, Body, Title, } from 'native-base'
 import { Button } from 'react-native-elements'
 import {Component} from "react";
 import React from "react";
+import Axios from 'axios';
 
 import galaxyImage from '../../../galaxy.jpg';
 import Logo from '../../assets/logo.png';
@@ -22,9 +23,24 @@ import Logo from '../../assets/logo.png';
 export default class LoginScreen extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      username:'',
+      password:''
+    }
   }
 
 
+  login = () => {
+    const {username, password} = this.state;
+    Axios.get('http://13.251.103.54/api/v1/login',{
+      username,
+      password
+    }).then((res)=>{
+      console.log(res);
+      this.props.navigation.navigate('Directory')
+    });
+  };
 
   render() {
     return (
@@ -49,6 +65,7 @@ export default class LoginScreen extends Component {
                 value={""}
                 placeholder='Username'
                 placeholderTextColor='white'
+                onChange={(value) => this.setState({username:value})}
               />
               <TextInput
                 style={styles.textInputLogin}
@@ -56,12 +73,13 @@ export default class LoginScreen extends Component {
                 placeholder='Password'
                 placeholderTextColor='white'
                 secureTextEntry={true}
+                onChange={(value) => this.setState({password:value})}
               />
             </View>
             <View style={{flex:1}}>
               <Button
                 style={styles.signInButton}
-                onPress={()=>{this.props.navigation.navigate('Directory')}}
+                onPress={this.login}
                 title="SIGN IN"
                 color="black"
                 backgroundColor="#fff"

@@ -12,12 +12,14 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  ImageBackground
+  ImageBackground,
+  Dimensions
 } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base';
 import Video from 'react-native-video';
 import Slider from 'react-native-slider';
 import moment from 'moment';
+import ImageZoom from 'react-native-image-pan-zoom';
 
 import galaxyImage from '../../../galaxy.jpg';
 import NavBar from '../../components/Navbar/Navbar';
@@ -170,6 +172,11 @@ export default class VideoPlayer extends Component {
 
   }
 
+  handlePress(evt){
+    console.log(`x coord = ${evt.nativeEvent.locationX}`);
+    this.setState({paused: !this.state.paused})
+  }
+
   renderCustomSkin() {
     const flexCompleted = this.getCurrentTimePercentage() * 100;
     const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
@@ -177,29 +184,38 @@ export default class VideoPlayer extends Component {
     return (
       <Container>
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
-          <NavBar {...this.props}/>
+          <NavBar title={'Reebook'} {...this.props}/>
 
-          <View style={{flex: 1}}>
-            <View style={{height:272, width:"100%"}}>
-              <TouchableOpacity style={styles.videoContainer} onPress={() => {this.setState({paused: !this.state.paused})}}>
-                <Video
-                  ref={ref => (this.videoPlayer = ref)}
-                  source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
-                  style={styles.fullScreen}
-                  rate={this.state.rate}
-                  paused={this.state.paused}
-                  volume={this.state.volume}
-                  muted={this.state.muted}
-                  ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-                  resizeMode={this.state.resizeMode}
-                  onLoad={this.onLoad}
-                  onBuffer={this.onBuffer}
-                  onProgress={this.onProgress}
-                  onEnd={() => { }}
-                  repeat={true}
-                />
-              </TouchableOpacity>
-            </View>
+          <View style={{flex: 1}} >
+
+              <TouchableWithoutFeedback style={styles.videoContainer} onPress={(evt) => {this.handlePress(evt)}}>
+                {/*<ImageZoom cropWidth={Dimensions.get('window').width}*/}
+                           {/*cropHeight={272}*/}
+                           {/*imageWidth={Dimensions.get('window').width}*/}
+                           {/*imageHeight={272}*/}
+                           {/*minScale={1}*/}
+                           {/*onClick={()=>this.setState({paused: !this.state.paused})}*/}
+                {/*>*/}
+                  <Video
+                    ref={ref => (this.videoPlayer = ref)}
+                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
+                    style={styles.fullScreen}
+                    rate={this.state.rate}
+                    paused={this.state.paused}
+                    volume={this.state.volume}
+                    muted={this.state.muted}
+                    ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+                    resizeMode={this.state.resizeMode}
+                    onLoad={this.onLoad}
+                    onBuffer={this.onBuffer}
+                    onProgress={this.onProgress}
+                    onEnd={() => { }}
+                    repeat={true}
+                  />
+                {/*</ImageZoom>*/}
+              </TouchableWithoutFeedback>
+
+
             <View style={styles.controls}>
               <Text style={textStyles.videoTime} pointerEvents="none">
                 {moment.utc(Math.floor(this.state.currentTime)*1000).format('HH:mm:ss')} / {moment.utc(Math.floor(this.state.duration)*1000).format('HH:mm:ss')}
@@ -399,6 +415,7 @@ const styles = StyleSheet.create({
   },
   fullScreen: {
     flex: 1,
+    width:'100%'
   },
   skipperContainer: {
     top: -5,

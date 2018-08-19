@@ -1,12 +1,12 @@
 // import { Navigation } from 'react-native-navigation';
 import {Provider} from 'react-redux';
-import {StatusBar, View, Platform, NativeModules, StyleSheet} from 'react-native';
+import {StatusBar, View, Platform, NativeModules, StyleSheet, } from 'react-native';
 
 const {StatusBarManager} = NativeModules;
 import configureStore from './src/store/configureStore';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
-import {createDrawerNavigator, DrawerItems} from 'react-navigation';
+import {createDrawerNavigator, createSwitchNavigator} from 'react-navigation';
 import React, {Component} from 'react';
 
 
@@ -16,7 +16,14 @@ import Login from './src/screens/login/login';
 import Directory from './src/screens/directory/directory';
 import Drawer from './src/screens/drawer/CustomDrawer';
 
+//loading screens
+import AuthLoadingScreen from './src/auth/AuthLoadingScreen'
+
 const store = configureStore();
+
+const AuthScreens = {
+
+};
 
 const screens = {
   Login: {
@@ -32,8 +39,10 @@ const screens = {
     title: 'TagEditor',
   },
 };
+
+
 //Register Screens
-const AppStackNavigator = createDrawerNavigator(
+const AppStack = createDrawerNavigator(
   screens,
   {
     contentComponent: ({navigation}) => (
@@ -41,6 +50,21 @@ const AppStackNavigator = createDrawerNavigator(
     ),
   },
 );
+
+const AuthStack = createDrawerNavigator(screens);
+
+const AppStackNavigator = createSwitchNavigator(
+  {
+    AuthLoading: AuthLoadingScreen,
+    App: AppStack,
+    Auth: AuthStack,
+  },
+  {
+    initialRouteName: 'AuthLoading',
+  }
+);
+
+
 
 export default class App extends Component {
   render() {

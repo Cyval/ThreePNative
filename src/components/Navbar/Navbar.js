@@ -16,7 +16,7 @@ export default class Navbar extends Component {
           </Button>
         </Left>
         <Body>
-        <Title style={{color: 'white', fontSize: 25, fontFamily: 'HelveticaNeue'}}>Directory</Title>
+        <Title style={{color: 'white', fontSize: 25, fontFamily: 'HelveticaNeue'}}>{this.props.title}</Title>
         </Body>
         <Right>
           <Button transparent onPress={()=>{this.props.navigation.goBack()}}>
