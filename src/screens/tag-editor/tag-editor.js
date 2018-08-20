@@ -37,23 +37,24 @@ export default class VideoPlayer extends Component {
     this.onProgress = this.onProgress.bind(this);
     this.onBuffer = this.onBuffer.bind(this);
     this.videoPlayer = React.createRef();
+    this.state = {
+      rate: 1,
+      volume: 1,
+      muted: false,
+      resizeMode: 'contain',
+      duration: 0.0,
+      currentTime: 0.0,
+      controls: false,
+      paused: true,
+      skin: 'custom',
+      ignoreSilentSwitch: null,
+      isBuffering: false,
+      skipButton: [true, false, false, false, false],
+      orientation: 'PORTRAIT',
+      playerSize: {},
+      videoHeight: Dimensions.get('window').width / (16 / 9)
+     }
   }
-  state = {
-    rate: 1,
-    volume: 1,
-    muted: false,
-    resizeMode: 'contain',
-    duration: 0.0,
-    currentTime: 0.0,
-    controls: false,
-    paused: true,
-    skin: 'custom',
-    ignoreSilentSwitch: null,
-    isBuffering: false,
-    skipButton: [true, false, false, false, false],
-    orientation: 'PORTRAIT',
-    playerSize: {}
-  };
 
   onLoad(data) {
     console.log('On load fired!');
@@ -206,8 +207,11 @@ export default class VideoPlayer extends Component {
   }
 
   handleTag(e) {
-    // this.videoPlayer.presentFullscreenPlayer();
-    Orientation.lockToLandscapeRight()
+    if (!this.state.fullScreen) {
+      Orientation.lockToLandscapeRight()
+    } else {
+      Orientation.lockToPortrait()
+    }
     this.setState({
       fullScreen: !this.state.fullScreen
     })
@@ -215,11 +219,22 @@ export default class VideoPlayer extends Component {
 
   measureView(e) {
     let {width, height } = e.nativeEvent.layout;
-
-    console.log(e.nativeEvent)
     this.setState({
       playerSize: {width, height}
     })
+  }
+
+  tagStyle() {
+    return  {
+      position: 'absolute',
+        height: 24,
+        resizeMode: 'contain',
+        zIndex: 100,
+        width: 24,
+        right: 8,
+        padding: 4,
+        top: this.state.playerSize.height - 36,
+    }
   }
 
   componentDidMount() {
@@ -248,35 +263,34 @@ export default class VideoPlayer extends Component {
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
           <NavBar title={'Reebook'} {...this.props}/>
 
-          <View style={{flex: 1}} onLayout={(e) => this.measureView(e)}>
-            <TouchableWithoutFeedback style={orientation === 'PORTRAIT' ? styles.videoContainer : styles.videoContainerFullScreen} onPress={(evt) => {this.handlePress(evt)}}>
-              {/*<ImageZoom cropWidth={Dimensions.get('window').width}*/}
-                         {/*cropHeight={272}*/}
-                         {/*imageWidth={Dimensions.get('window').width}*/}
-                         {/*imageHeight={272}*/}
-                         {/*minScale={1}*/}
-                         {/*onClick={()=>this.setState({paused: !this.state.paused})}*/}
-              {/*>*/}
-                <Video
-                  ref={ref => (this.videoPlayer = ref)}
-                  source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
-                  style={orientation === 'PORTRAIT' ? styles.previewScreen : styles.fullScreen}
-                  rate={this.state.rate}
-                  paused={this.state.paused}
-                  volume={this.state.volume}
-                  muted={this.state.muted}
-                  ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-                  resizeMode={this.state.resizeMode}
-                  onLoad={this.onLoad}
-                  onBuffer={this.onBuffer}
-                  onProgress={this.onProgress}
-                  onEnd={() => { }}
-                  repeat={true}
-                />
-              {/*</ImageZoom>*/}
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}}>
-              <Image  style={styles.tagStyle} source={tagImage}/>
+          <View style={{flex: 1}}>
+            <View style={{height: (Dimensions.get('window').width / (16 / 9)) + 6}}>
+              <TouchableWithoutFeedback style={orientation === 'PORTRAIT' ? styles.videoContainer : styles.videoContainerFullScreen} onPress={(evt) => {this.handlePress(evt)}}
+                                        onLayout={(e) => this.measureView(e)}>
+                {/*<View onLayout={(e) => this.measureViewPlayer(e)}*/}
+                      {/*style={orientation === 'PORTRAIT' ? styles.previewScreen : styles.fullScreen}*/}
+                {/*>*/}
+                  <Video
+                    ref={ref => (this.videoPlayer = ref)}
+                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
+                    style={orientation === 'PORTRAIT' ? styles.previewScreen : styles.fullScreen}
+                    rate={this.state.rate}
+                    paused={this.state.paused}
+                    volume={this.state.volume}
+                    muted={this.state.muted}
+                    ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+                    resizeMode={this.state.resizeMode}
+                    onLoad={this.onLoad}
+                    onBuffer={this.onBuffer}
+                    onProgress={this.onProgress}
+                    onEnd={() => { }}
+                    repeat={true}
+                  />
+                {/*</View>*/}
+              </TouchableWithoutFeedback>
+            </View>
+            <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
+              <Image  style={this.tagStyle()} source={tagImage}/>
             </TouchableWithoutFeedback>
 
 
@@ -366,6 +380,7 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     flex: 1,
+    height: Dimensions.get('window').width / (16 / 9)
   },
   videoContainerFullScreen: {
     position: 'absolute',
@@ -375,7 +390,8 @@ const styles = StyleSheet.create({
   },
   previewScreen: {
     flex: 1,
-    width:'100%'
+    width:'100%',
+    height: Dimensions.get('window').width / (16 / 9)
   },
   fullScreen: {
     position: 'absolute',
@@ -450,7 +466,7 @@ const styles = StyleSheet.create({
     flex:1,
     backgroundColor: "transparent",
     borderRadius: 5,
-    top: -50,
+    top: -5,
   },
   controlsFullScreen: {
     display: 'none',
@@ -463,12 +479,6 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
     paddingRight: 2,
     lineHeight: 12,
-  },
-  tagStyle: {
-    position: 'absolute',
-    height: 32,
-    resizeMode: 'contain',
-    zIndex: 10,
   },
   dividerStyle: {
     flexDirection: 'row',
