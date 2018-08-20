@@ -14,7 +14,8 @@ import {
   View,
   ImageBackground,
   Dimensions,
-  Image
+  Image,
+  Modal
 } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base';
 import Video from 'react-native-video';
@@ -28,6 +29,7 @@ import dividerImage from '../../assets/divider.png';
 import titleDividerImage from '../../assets/title-divider.png';
 import editImage from '../../assets/edit.png';
 import tagImage from '../../assets/tag.png';
+import crosshair from '../../assets/crosshair.png';
 import NavBar from '../../components/Navbar/Navbar';
 
 export default class VideoPlayer extends Component {
@@ -52,7 +54,10 @@ export default class VideoPlayer extends Component {
       skipButton: [true, false, false, false, false],
       orientation: 'PORTRAIT',
       playerSize: {},
-      videoHeight: Dimensions.get('window').width / (16 / 9)
+      videoHeight: Dimensions.get('window').width / (16 / 9),
+      coords: {x: 0, y: 0},
+      percentage: {x: 0, y: 0},
+      modalVisible: false,
      }
   }
 
@@ -197,7 +202,12 @@ export default class VideoPlayer extends Component {
         y: Math.round((locationY*100)/height * 100) / 100
       };
 
-      console.log(coords, percentage);
+      console.log("coords", coords, "percentage", percentage);
+
+      this.setState({
+        coords,
+        percentage
+      })
 
       //TODO: Add tag marker in coordinate position, show modal for tag entry
 
@@ -217,6 +227,12 @@ export default class VideoPlayer extends Component {
     })
   }
 
+  handleCrosshair(e) {
+    this.setState({
+      modalVisible: true
+    })
+  }
+
   measureView(e) {
     let {width, height } = e.nativeEvent.layout;
     this.setState({
@@ -227,14 +243,35 @@ export default class VideoPlayer extends Component {
   tagStyle() {
     return  {
       position: 'absolute',
-        height: 24,
+      height: 24,
+      resizeMode: 'contain',
+      zIndex: 100,
+      width: 24,
+      right: 8,
+      padding: 4,
+      top: this.state.playerSize.height - 36,
+    }
+  }
+
+  crosshairStyle() {
+    if (this.state.fullScreen) {
+      return  {
+        position: 'absolute',
+        height: 40,
         resizeMode: 'contain',
         zIndex: 100,
-        width: 24,
-        right: 8,
-        padding: 4,
-        top: this.state.playerSize.height - 36,
+        width: 40,
+        top: this.state.coords.y - 20,
+        left: this.state.coords.x - 20,
+      }
+    } else {
+      return {
+        position: 'absolute',
+        display: 'none',
+        height: 0
+      }
     }
+
   }
 
   componentDidMount() {
@@ -260,6 +297,24 @@ export default class VideoPlayer extends Component {
     let {orientation} = this.state;
     return (
       <Container>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modalVisible}
+          supportedOrientations={['portrait','landscape']}
+          onRequestClose={() => {
+            alert('Modal has been closed.');
+          }}>
+          <View style={modalStyle.mainView}>
+            <View style={{alignSelf: 'center'}}>
+              <Text>CHOOSE TAG TYPE</Text>
+
+            </View>
+          </View>
+        </Modal>
+
+
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
           <NavBar title={'Reebook'} {...this.props}/>
 
@@ -290,7 +345,11 @@ export default class VideoPlayer extends Component {
               </TouchableWithoutFeedback>
             </View>
             <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
-              <Image  style={this.tagStyle()} source={tagImage}/>
+              <Image style={this.tagStyle()} source={tagImage}/>
+            </TouchableWithoutFeedback>
+
+            <TouchableWithoutFeedback onPress={(e) => {this.handleCrosshair(e)}} >
+              <Image style={this.crosshairStyle()} source={crosshair}/>
             </TouchableWithoutFeedback>
 
 
@@ -341,6 +400,18 @@ const sliderStyle = StyleSheet.create({
     height: 50,
     borderRadius: 1,
     backgroundColor: '#FFFFFF',
+  }
+});
+
+const modalStyle = StyleSheet.create({
+  mainView: {
+    height: '80%',
+    width: '80%',
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: 10,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginTop: '5%'
   }
 });
 
