@@ -13,15 +13,21 @@ import {
   TouchableWithoutFeedback,
   View,
   ImageBackground,
-  Dimensions
+  Dimensions,
+  Image
 } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base';
 import Video from 'react-native-video';
 import Slider from 'react-native-slider';
 import moment from 'moment';
 import ImageZoom from 'react-native-image-pan-zoom';
+import Orientation from 'react-native-orientation';
 
 import galaxyImage from '../../../galaxy.jpg';
+import dividerImage from '../../assets/divider.png';
+import titleDividerImage from '../../assets/title-divider.png';
+import editImage from '../../assets/edit.png';
+import tagImage from '../../assets/tag.png';
 import NavBar from '../../components/Navbar/Navbar';
 
 export default class VideoPlayer extends Component {
@@ -44,7 +50,9 @@ export default class VideoPlayer extends Component {
     skin: 'custom',
     ignoreSilentSwitch: null,
     isBuffering: false,
-    skipButton: [true, false, false, false, false]
+    skipButton: [true, false, false, false, false],
+    orientation: 'PORTRAIT',
+    playerSize: {}
   };
 
   onLoad(data) {
@@ -172,51 +180,107 @@ export default class VideoPlayer extends Component {
 
   }
 
-  handlePress(evt){
-    console.log(`x coord = ${evt.nativeEvent.locationX}`);
-    this.setState({paused: !this.state.paused})
+  handlePress(e){
+    if (this.state.paused && this.state.fullScreen) {
+      // Handle tagging
+      let {locationX, locationY} = e.nativeEvent;
+      let {width, height} = this.state.playerSize;
+
+      let coords = {
+        x: locationX,
+        y: locationY
+      };
+
+      let percentage = {
+        x: Math.round((locationX*100)/width * 100) / 100,
+        y: Math.round((locationY*100)/height * 100) / 100
+      };
+
+      console.log(coords, percentage);
+
+      //TODO: Add tag marker in coordinate position, show modal for tag entry
+
+    } else {
+      this.setState({paused: !this.state.paused})
+    }
+  }
+
+  handleTag(e) {
+    // this.videoPlayer.presentFullscreenPlayer();
+    Orientation.lockToLandscapeRight()
+    this.setState({
+      fullScreen: !this.state.fullScreen
+    })
+  }
+
+  measureView(e) {
+    let {width, height } = e.nativeEvent.layout;
+
+    console.log(e.nativeEvent)
+    this.setState({
+      playerSize: {width, height}
+    })
+  }
+
+  componentDidMount() {
+    //Lock Orientation to Portrait
+    Orientation.lockToPortrait();
+    Orientation.addOrientationListener(this._orientationDidChange.bind(this));
+  }
+
+  _orientationDidChange(orientation) {
+    this.setState({
+      orientation
+    })
+  }
+
+  componentWillUnmount() {
+    // Remember to remove listener
+    Orientation.removeOrientationListener(this._orientationDidChange.bind(this));
   }
 
   renderCustomSkin() {
     const flexCompleted = this.getCurrentTimePercentage() * 100;
     const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
-
+    let {orientation} = this.state;
     return (
       <Container>
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
           <NavBar title={'Reebook'} {...this.props}/>
 
-          <View style={{flex: 1}} >
+          <View style={{flex: 1}} onLayout={(e) => this.measureView(e)}>
+            <TouchableWithoutFeedback style={orientation === 'PORTRAIT' ? styles.videoContainer : styles.videoContainerFullScreen} onPress={(evt) => {this.handlePress(evt)}}>
+              {/*<ImageZoom cropWidth={Dimensions.get('window').width}*/}
+                         {/*cropHeight={272}*/}
+                         {/*imageWidth={Dimensions.get('window').width}*/}
+                         {/*imageHeight={272}*/}
+                         {/*minScale={1}*/}
+                         {/*onClick={()=>this.setState({paused: !this.state.paused})}*/}
+              {/*>*/}
+                <Video
+                  ref={ref => (this.videoPlayer = ref)}
+                  source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
+                  style={orientation === 'PORTRAIT' ? styles.previewScreen : styles.fullScreen}
+                  rate={this.state.rate}
+                  paused={this.state.paused}
+                  volume={this.state.volume}
+                  muted={this.state.muted}
+                  ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+                  resizeMode={this.state.resizeMode}
+                  onLoad={this.onLoad}
+                  onBuffer={this.onBuffer}
+                  onProgress={this.onProgress}
+                  onEnd={() => { }}
+                  repeat={true}
+                />
+              {/*</ImageZoom>*/}
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}}>
+              <Image  style={styles.tagStyle} source={tagImage}/>
+            </TouchableWithoutFeedback>
 
-              <TouchableWithoutFeedback style={styles.videoContainer} onPress={(evt) => {this.handlePress(evt)}}>
-                {/*<ImageZoom cropWidth={Dimensions.get('window').width}*/}
-                           {/*cropHeight={272}*/}
-                           {/*imageWidth={Dimensions.get('window').width}*/}
-                           {/*imageHeight={272}*/}
-                           {/*minScale={1}*/}
-                           {/*onClick={()=>this.setState({paused: !this.state.paused})}*/}
-                {/*>*/}
-                  <Video
-                    ref={ref => (this.videoPlayer = ref)}
-                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
-                    style={styles.fullScreen}
-                    rate={this.state.rate}
-                    paused={this.state.paused}
-                    volume={this.state.volume}
-                    muted={this.state.muted}
-                    ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-                    resizeMode={this.state.resizeMode}
-                    onLoad={this.onLoad}
-                    onBuffer={this.onBuffer}
-                    onProgress={this.onProgress}
-                    onEnd={() => { }}
-                    repeat={true}
-                  />
-                {/*</ImageZoom>*/}
-              </TouchableWithoutFeedback>
 
-
-            <View style={styles.controls}>
+            <View style={orientation === 'PORTRAIT' ? styles.controls : styles.controlsFullScreen}>
               <Text style={textStyles.videoTime} pointerEvents="none">
                 {moment.utc(Math.floor(this.state.currentTime)*1000).format('HH:mm:ss')} / {moment.utc(Math.floor(this.state.duration)*1000).format('HH:mm:ss')}
               </Text>
@@ -237,6 +301,7 @@ export default class VideoPlayer extends Component {
                 {this.renderSkipperButtons()}
 
               </View>
+              <Image  style={styles.dividerStyle} source={dividerImage}/>
             </View>
           </View>
 
@@ -249,7 +314,170 @@ export default class VideoPlayer extends Component {
     return this.renderCustomSkin();
   }
 }
-//
+
+
+const sliderStyle = StyleSheet.create({
+  track: {
+    height: 36,
+    borderRadius: 1,
+    backgroundColor: '#77B95B',
+  },
+  thumb: {
+    width: 10,
+    height: 50,
+    borderRadius: 1,
+    backgroundColor: '#FFFFFF',
+  }
+});
+
+const textStyles = StyleSheet.create({
+  videoTime: {
+    alignSelf: 'center',
+    fontSize: 14,
+    color: "white",
+    paddingLeft: 2,
+    paddingRight: 2,
+    lineHeight: 12,
+    paddingTop: 15,
+    zIndex: 10,
+    position: 'absolute',
+  },
+  headerTitle: {
+    alignSelf: 'center',
+    fontSize: 20,
+    color: "white",
+    paddingLeft: 2,
+    paddingRight: 2,
+    lineHeight: 12,
+    paddingTop: 15,
+    zIndex: 10,
+    position: 'absolute',
+  },
+});
+
+const styles = StyleSheet.create({
+  header: {
+    marginTop: 50,
+    height: 50,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  videoContainer: {
+    flex: 1,
+  },
+  videoContainerFullScreen: {
+    position: 'absolute',
+    zIndex: 50,
+    height: '100%',
+    width: '100%',
+  },
+  previewScreen: {
+    flex: 1,
+    width:'100%'
+  },
+  fullScreen: {
+    position: 'absolute',
+    height:'100%',
+    width:'100%',
+    zIndex: 50
+  },
+  skipperContainer: {
+    top: -4,
+    backgroundColor: '#554358',
+    height: 15,
+    width: '100%',
+    zIndex: -1
+  },
+  skipperButtonContainer: {
+    top: -15,
+    width: '100%',
+    height: 30,
+    flex: 0,
+    flexDirection: 'row',
+  },
+  skipperButton: {
+    flex: 1,
+    width: '20%',
+    top: 10,
+    backgroundColor: 'transparent',
+    height: 40,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+  skipperButtonActive: {
+    flex: 1,
+    width: '20%',
+    top: 10,
+    backgroundColor: '#554358',
+    height: 40,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    paddingTop: 5,
+    paddingBottom: 5,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  skipperGreen: {
+    flex: 1,
+    width: '90%',
+    height: 45,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#77B95B',
+    borderRadius: 50,
+    borderColor: '#B9F5A0',
+    borderWidth: 3,
+    borderStyle: 'solid',
+  },
+  skipperGray: {
+    flex: 1,
+    width: '90%',
+    height: 45,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#AAA',
+    borderRadius: 50
+  },
+  skipperTime: {
+    alignSelf: 'center',
+    color: '#FFFFFF',
+  },
+  controls: {
+    flex:1,
+    backgroundColor: "transparent",
+    borderRadius: 5,
+    top: -50,
+  },
+  controlsFullScreen: {
+    display: 'none',
+    height: 0
+  },
+  controlOption: {
+    alignSelf: 'center',
+    fontSize: 11,
+    color: "white",
+    paddingLeft: 2,
+    paddingRight: 2,
+    lineHeight: 12,
+  },
+  tagStyle: {
+    position: 'absolute',
+    height: 32,
+    resizeMode: 'contain',
+    zIndex: 10,
+  },
+  dividerStyle: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '90%',
+    resizeMode: 'contain',
+    alignSelf: 'center',
+  }
+});
 //
 // const sliderStyle = StyleSheet.create({
 //   track: {
@@ -360,138 +588,3 @@ export default class VideoPlayer extends Component {
 //   }
 // });
 
-
-
-const sliderStyle = StyleSheet.create({
-  track: {
-    height: 36,
-    borderRadius: 1,
-    backgroundColor: '#77B95B',
-  },
-  thumb: {
-    width: 10,
-    height: 50,
-    borderRadius: 1,
-    backgroundColor: '#FFFFFF',
-  }
-});
-
-const textStyles = StyleSheet.create({
-  videoTime: {
-    alignSelf: 'center',
-    fontSize: 14,
-    color: "white",
-    paddingLeft: 2,
-    paddingRight: 2,
-    lineHeight: 12,
-    paddingTop: 15,
-    zIndex: 10,
-    position: 'absolute',
-  },
-  headerTitle: {
-    alignSelf: 'center',
-    fontSize: 20,
-    color: "white",
-    paddingLeft: 2,
-    paddingRight: 2,
-    lineHeight: 12,
-    paddingTop: 15,
-    zIndex: 10,
-    position: 'absolute',
-  },
-});
-
-const styles = StyleSheet.create({
-  header: {
-    marginTop: 50,
-    height: 50,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  videoContainer: {
-    flex: 1,
-  },
-  fullScreen: {
-    flex: 1,
-    width:'100%'
-  },
-  skipperContainer: {
-    top: -5,
-    backgroundColor: '#554358',
-    height: 15,
-    width: '100%',
-    zIndex: -1
-  },
-  skipperButtonContainer: {
-    top: -15,
-    width: '100%',
-    height: 60,
-    flex: 1,
-    flexDirection: 'row',
-  },
-  skipperButton: {
-    flex: 1,
-    width: '20%',
-    top: 10,
-    backgroundColor: 'transparent',
-    height: 40,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    paddingTop: 5,
-    paddingBottom: 5,
-  },
-  skipperButtonActive: {
-    flex: 1,
-    width: '20%',
-    top: 10,
-    backgroundColor: '#554358',
-    height: 40,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-  skipperGreen: {
-    flex: 1,
-    width: '90%',
-    height: 45,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#77B95B',
-    borderRadius: 50,
-    borderColor: '#B9F5A0',
-    borderWidth: 3,
-    borderStyle: 'solid',
-  },
-  skipperGray: {
-    flex: 1,
-    width: '90%',
-    height: 45,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#AAA',
-    borderRadius: 50
-  },
-  skipperTime: {
-    alignSelf: 'center',
-    color: '#FFFFFF',
-  },
-  controls: {
-    flex:1,
-    backgroundColor: "transparent",
-    borderRadius: 5,
-    top: -30,
-  },
-  controlOption: {
-    alignSelf: 'center',
-    fontSize: 11,
-    color: "white",
-    paddingLeft: 2,
-    paddingRight: 2,
-    lineHeight: 12,
-  },
-});

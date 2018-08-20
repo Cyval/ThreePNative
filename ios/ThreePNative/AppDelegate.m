@@ -9,6 +9,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+#import "Orientation.h"
 
 @implementation AppDelegate
 
@@ -30,6 +31,15 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   return YES;
+}
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
+{
+  while ([[UIDevice currentDevice] isGeneratingDeviceOrientationNotifications]) {
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+  }
+
+  return [Orientation getOrientation];
 }
 
 @end
