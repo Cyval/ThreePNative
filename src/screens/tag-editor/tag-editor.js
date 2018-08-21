@@ -309,7 +309,9 @@ export default class VideoPlayer extends Component {
           <View style={modalStyle.mainView}>
             <View style={{alignSelf: 'center'}}>
               <Text>CHOOSE TAG TYPE</Text>
-
+              <TouchableWithoutFeedback onPress={()=>this.setState({modalVisible:false})}>
+                <Text>Close</Text>
+              </TouchableWithoutFeedback>
             </View>
           </View>
         </Modal>

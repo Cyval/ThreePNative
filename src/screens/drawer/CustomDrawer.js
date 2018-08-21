@@ -22,7 +22,6 @@ class DrawerContent extends Component {
       activeRoute: 0,
     };
   }
-
   onItemPress(item) {
     const {navigation} = this.props;
     navigation.navigate(item.key);
@@ -57,12 +56,7 @@ class DrawerContent extends Component {
               this.props.navigation.navigate(item.title);
             }}
           >
-            {/*{item.icon}*/}
-            <FontAwesome
-              size={20}
-              name={item.iconName}
-              style={(activeRoute === item.title) && {color: 'white'}}
-            />
+
 
             <Text
               style={
@@ -96,8 +90,18 @@ class DrawerContent extends Component {
           <View style={styles.sideDrawerheader}>
 
           </View>
-          <View style={{flex: 8}}>
+          <View style={{flex: 7}}>
             {this.renderDrawerItem(this.props.navigation)}
+          </View>
+          <View style={{flex: 1}}>
+            <TouchableOpacity
+              key={'logout'}
+              onPress={()=>{
+                this.props.navigation.navigate('Login');
+              }}
+            >
+              <Text style={{alignSelf:'center'}}>Log Out</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

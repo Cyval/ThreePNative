@@ -22,14 +22,14 @@ import AuthLoadingScreen from './src/auth/AuthLoadingScreen'
 const store = configureStore();
 
 const AuthScreens = {
-
-};
-
-const screens = {
   Login: {
     screen: Login,
     title: 'Login',
   },
+};
+
+const screens = {
+
   Directory: {
     screen: Directory,
     title: 'Directory'
@@ -51,7 +51,7 @@ const AppStack = createDrawerNavigator(
   },
 );
 
-const AuthStack = createDrawerNavigator(screens);
+const AuthStack = createDrawerNavigator(AuthScreens);
 
 const AppStackNavigator = createSwitchNavigator(
   {

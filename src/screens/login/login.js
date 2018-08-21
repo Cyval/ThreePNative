@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  AsyncStorage,
   ImageBackground,
   Image,
   TextInput,
@@ -25,20 +26,25 @@ export default class LoginScreen extends Component {
     super(props);
 
     this.state = {
-      username:'',
-      password:''
+      email:'testaccount1@3ptouchmedia.com',
+      password:'3ptouchtest'
     }
   }
 
 
   login = () => {
-    const {username, password} = this.state;
-    Axios.get('http://13.251.103.54/api/v1/login',{
-      username,
+    const {email, password} = this.state;
+    Axios.post('http://13.251.103.54/api/v1/login',{
+      email,
       password
     }).then((res)=>{
-      console.log(res);
-      this.props.navigation.navigate('Directory')
+      console.log(res.data.data);
+      const userData = res.data.data;
+      AsyncStorage.setItem('userData',JSON.stringify(userData), ()=>{
+        this.props.navigation.navigate('Directory');
+      });
+    }).catch(function (error) {
+      console.log(error);
     });
   };
 
@@ -62,14 +68,14 @@ export default class LoginScreen extends Component {
             <View style={{flex:1}}>
               <TextInput
                 style={styles.textInputLogin}
-                value={""}
+                value={this.state.email}
                 placeholder='Username'
                 placeholderTextColor='white'
                 onChange={(value) => this.setState({username:value})}
               />
               <TextInput
                 style={styles.textInputLogin}
-                value={""}
+                value={this.state.password}
                 placeholder='Password'
                 placeholderTextColor='white'
                 secureTextEntry={true}
