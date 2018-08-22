@@ -11,7 +11,7 @@ import {
   FlatList,
   Easing,
   Platform,
-  ActivityIndicator
+  AsyncStorage
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
@@ -97,7 +97,9 @@ class DrawerContent extends Component {
             <TouchableOpacity
               key={'logout'}
               onPress={()=>{
-                this.props.navigation.navigate('Login');
+                AsyncStorage.removeItem('userData',()=>{
+                  this.props.navigation.navigate('Login');
+                });
               }}
             >
               <Text style={{alignSelf:'center'}}>Log Out</Text>

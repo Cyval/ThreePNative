@@ -38,7 +38,6 @@ export default class LoginScreen extends Component {
       email,
       password
     }).then((res)=>{
-      console.log(res.data.data);
       const userData = res.data.data;
       AsyncStorage.setItem('userData',JSON.stringify(userData), ()=>{
         this.props.navigation.navigate('Directory');
