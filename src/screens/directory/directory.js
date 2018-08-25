@@ -14,7 +14,7 @@ import {
 
 import {Component} from "react";
 import React from "react";
-import galaxyImage from '../../../galaxy.jpg';
+import galaxyImage from '../../assets/galaxy.jpg';
 import {Header, Container, Left, Right, Button, Title, Body} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NavBar from '../../components/Navbar/Navbar';

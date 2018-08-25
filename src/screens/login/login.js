@@ -18,7 +18,7 @@ import {Component} from "react";
 import React from "react";
 import Axios from 'axios';
 
-import galaxyImage from '../../../galaxy.jpg';
+import galaxyImage from '../../assets/galaxy.jpg';
 import Logo from '../../assets/logo.png';
 
 export default class LoginScreen extends Component {

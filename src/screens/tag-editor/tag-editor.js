@@ -24,7 +24,7 @@ import moment from 'moment';
 import ImageZoom from 'react-native-image-pan-zoom';
 import Orientation from 'react-native-orientation';
 
-import galaxyImage from '../../../galaxy.jpg';
+import galaxyImage from '../../assets/galaxy.jpg';
 import dividerImage from '../../assets/divider.png';
 import titleDividerImage from '../../assets/title-divider.png';
 import editImage from '../../assets/edit.png';
