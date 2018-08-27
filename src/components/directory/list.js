@@ -3,7 +3,17 @@ import {Container, Header, Left, Body, Right, Button, Title,} from 'native-base'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {StyleSheet, View, Text, TouchableWithoutFeedback} from 'react-native'
 
+
+
+const dataArray = [
+  { title: "First Element", content: "Lorem ipsum dolor sit amet" },
+  { title: "Second Element", content: "Lorem ipsum dolor sit amet" },
+  { title: "Third Element", content: "Lorem ipsum dolor sit amet" }
+];
+
 export default class List extends Component {
+
+
   render() {
     return (
       <TouchableWithoutFeedback onPress={()=>{this.props.redirect('TagEditor')}}>
