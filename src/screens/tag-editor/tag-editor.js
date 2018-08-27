@@ -35,6 +35,7 @@ import NavBar from '../../components/Navbar/Navbar';
 export default class VideoPlayer extends Component {
   constructor(props) {
     super(props);
+    Orientation.lockToLandscapeRight();
     this.onLoad = this.onLoad.bind(this);
     this.onProgress = this.onProgress.bind(this);
     this.onBuffer = this.onBuffer.bind(this);
@@ -217,11 +218,11 @@ export default class VideoPlayer extends Component {
   }
 
   handleTag(e) {
-    if (!this.state.fullScreen) {
-      Orientation.lockToLandscapeRight()
-    } else {
-      Orientation.lockToPortrait()
-    }
+    // if (!this.state.fullScreen) {
+    //   Orientation.lockToLandscapeRight()
+    // } else {
+    //   // Orientation.lockToPortrait()
+    // }
     this.setState({
       fullScreen: !this.state.fullScreen
     })
@@ -275,8 +276,9 @@ export default class VideoPlayer extends Component {
   }
 
   componentDidMount() {
-    //Lock Orientation to Portrait
-    Orientation.lockToPortrait();
+    //Lock Orientation to Landscape
+    // Orientation.lockToPortrait();
+    Orientation.lockToLandscapeRight();
     Orientation.addOrientationListener(this._orientationDidChange.bind(this));
   }
 
