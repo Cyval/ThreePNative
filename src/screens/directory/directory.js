@@ -8,8 +8,11 @@ import {
   StatusBar,
   ImageBackground,
   Image,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Dimensions
 } from 'react-native';
+
+import Orientation from 'react-native-orientation';
 
 import {Component} from "react";
 import React from "react";
@@ -25,6 +28,8 @@ import sample1 from '../../assets/sample1.png';
 import sample2 from '../../assets/sample2.png';
 
 import {Accordion} from "native-base";
+
+const screenWidth = Dimensions.get('window').width;
 
 export default class Directory extends Component {
   constructor(props) {
@@ -49,6 +54,10 @@ export default class Directory extends Component {
     }
   }
 
+  componentDidMount(){
+
+  }
+
   _renderHeader = (dataArray, expanded) => {
     return (
       <View style={{flexDirection: 'row', width: '95%', alignSelf: 'center'}}>
@@ -67,17 +76,16 @@ export default class Directory extends Component {
   _renderContent = (dataArray) => {
 
     const addCompo = (
-      <View key={'90a'} style={{margin: '5%', width: "40%", height: 100, backgroundColor: '#9ab7ff', borderRadius: 5, justifyContent:'center'}}>
+      <View key={'90a'} style={{margin: screenWidth * .03 , width: screenWidth * .39 , height: 100, backgroundColor: '#9ab7ff', borderRadius: 5, justifyContent:'center'}}>
         <Icon name={'plus'} size={30} color={'white'} style={{alignSelf:'center'}}/>
-      </View>
-   )
+      </View> );
 
     let vids = dataArray.content.map((vid,index) => {
       return (
         <TouchableWithoutFeedback key={index} onPress={() => {
           this.props.navigation.navigate('TagEditor')
         }}>
-          <Image source={vid.image} key={index} style={{margin: '5%', width: "40%", height: 100, backgroundColor: '#9ab7ff', borderRadius: 5}}>
+          <Image source={vid.image} key={index} style={{margin: screenWidth * .03 , width: screenWidth * .39, height: 100, backgroundColor: '#9ab7ff', borderRadius: 5}}>
 
           </Image>
         </TouchableWithoutFeedback>
@@ -88,15 +96,23 @@ export default class Directory extends Component {
 
     return (
       <View>
-        <View style={{flexDirection: 'row', width: '90%', flexWrap: 'wrap', alignSelf: 'center'}}>
+        <View style={{alignItems:'center', flexDirection: 'row', width: '90%', flexWrap: 'wrap', alignSelf: 'center'}}>
           {vids}
         </View>
-
+        <View style={{justifyContent:'center',marginBottom:20, alignSelf:'center', borderWidth:3, borderRadius:20, borderColor:'white', width:'80%', padding:10,}}>
+          <Text style={{alignSelf:'center',color:'white', fontSize:20}}> <Icon name={'globe'} size={30}/> GLOBAL</Text>
+        </View>
       </View>
     );
   }
 
   _keyExtractor = (item, index) => item.id;
+
+  _orientationDidChange(orientation) {
+    this.setState({
+      orientation
+    })
+  }
 
   render() {
     const {props} = this;

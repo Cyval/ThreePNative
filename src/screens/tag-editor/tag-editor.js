@@ -31,6 +31,7 @@ import editImage from '../../assets/edit.png';
 import tagImage from '../../assets/tag.png';
 import crosshair from '../../assets/crosshair.png';
 import NavBar from '../../components/Navbar/Navbar';
+import IconF from 'react-native-vector-icons/FontAwesome';
 
 export default class VideoPlayer extends Component {
   constructor(props) {
@@ -59,6 +60,7 @@ export default class VideoPlayer extends Component {
       coords: {x: 0, y: 0},
       percentage: {x: 0, y: 0},
       modalVisible: false,
+      tagActive:false,
      }
   }
 
@@ -188,7 +190,7 @@ export default class VideoPlayer extends Component {
   }
 
   handlePress(e){
-    if (this.state.paused && this.state.fullScreen) {
+    if (this.state.paused && this.state.tagActive) {
       // Handle tagging
       let {locationX, locationY} = e.nativeEvent;
       let {width, height} = this.state.playerSize;
@@ -211,20 +213,15 @@ export default class VideoPlayer extends Component {
       })
 
       //TODO: Add tag marker in coordinate position, show modal for tag entry
-
     } else {
       this.setState({paused: !this.state.paused})
     }
   }
 
   handleTag(e) {
-    // if (!this.state.fullScreen) {
-    //   Orientation.lockToLandscapeRight()
-    // } else {
-    //   // Orientation.lockToPortrait()
-    // }
     this.setState({
-      fullScreen: !this.state.fullScreen
+      tagActive: !this.state.tagActive,
+      paused: !this.state.paused
     })
   }
 
@@ -250,12 +247,12 @@ export default class VideoPlayer extends Component {
       width: 24,
       right: 8,
       padding: 4,
-      top: this.state.playerSize.height - 36,
+      top: 0 + 36,
     }
   }
 
   crosshairStyle() {
-    if (this.state.fullScreen) {
+    if (this.state.tagActive) {
       return  {
         position: 'absolute',
         height: 40,
@@ -278,8 +275,8 @@ export default class VideoPlayer extends Component {
   componentDidMount() {
     //Lock Orientation to Landscape
     // Orientation.lockToPortrait();
-    Orientation.lockToLandscapeRight();
-    Orientation.addOrientationListener(this._orientationDidChange.bind(this));
+    // Orientation.lockToLandscapeRight();
+    // Orientation.addOrientationListener(this._orientationDidChange.bind(this));
   }
 
   _orientationDidChange(orientation) {
@@ -318,21 +315,15 @@ export default class VideoPlayer extends Component {
           </View>
         </Modal>
 
-
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
-          <NavBar title={'Reebook'} {...this.props}/>
-
           <View style={{flex: 1}}>
-            <View style={{height: (Dimensions.get('window').width / (16 / 9)) + 6}}>
-              <TouchableWithoutFeedback style={orientation === 'PORTRAIT' ? styles.videoContainer : styles.videoContainerFullScreen} onPress={(evt) => {this.handlePress(evt)}}
+            <View style={{flex:1,height:Dimensions.get('window').width}}>
+              <TouchableWithoutFeedback style={ styles.videoContainerFullScreen} onPress={(evt) => {this.handlePress(evt)}}
                                         onLayout={(e) => this.measureView(e)}>
-                {/*<View onLayout={(e) => this.measureViewPlayer(e)}*/}
-                      {/*style={orientation === 'PORTRAIT' ? styles.previewScreen : styles.fullScreen}*/}
-                {/*>*/}
                   <Video
                     ref={ref => (this.videoPlayer = ref)}
                     source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
-                    style={orientation === 'PORTRAIT' ? styles.previewScreen : styles.fullScreen}
+                    style={styles.fullScreen}
                     rate={this.state.rate}
                     paused={this.state.paused}
                     volume={this.state.volume}
@@ -345,19 +336,37 @@ export default class VideoPlayer extends Component {
                     onEnd={() => { }}
                     repeat={true}
                   />
-                {/*</View>*/}
+              </TouchableWithoutFeedback>
+
+            </View>
+            <View style={{position:'absolute', width:'100%',top:0, display:this.state.tagActive ? 'none' : 'flex'}}>
+              <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
+                <Image style={this.tagStyle()} source={tagImage}/>
+              </TouchableWithoutFeedback>
+
+              <TouchableWithoutFeedback onPress={(e) => {
+                this.props.navigation.navigate('Directory');
+                Orientation.lockToPortrait();
+              }} >
+                <IconF style={{ position:'absolute',
+                  left: 7,
+                  padding: 4,
+                  top: 36,}} name={'times'} color={'white'} size={25}/>
+              </TouchableWithoutFeedback>
+
+              <TouchableWithoutFeedback onPress={(e) => {this.handleCrosshair(e)}} >
+                <IconF style={{ position:'absolute',
+                  right: 7,
+                  padding: 4,
+                  top: 72,}} name={'list'} color={'white'} size={25}/>
               </TouchableWithoutFeedback>
             </View>
-            <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
-              <Image style={this.tagStyle()} source={tagImage}/>
-            </TouchableWithoutFeedback>
 
             <TouchableWithoutFeedback onPress={(e) => {this.handleCrosshair(e)}} >
               <Image style={this.crosshairStyle()} source={crosshair}/>
             </TouchableWithoutFeedback>
 
-
-            <View style={orientation === 'PORTRAIT' ? styles.controls : styles.controlsFullScreen}>
+            <View style={[styles.controls,{display:this.state.tagActive ? 'none': 'flex'}]}>
               <Text style={textStyles.videoTime} pointerEvents="none">
                 {moment.utc(Math.floor(this.state.currentTime)*1000).format('HH:mm:ss')} / {moment.utc(Math.floor(this.state.duration)*1000).format('HH:mm:ss')}
               </Text>
@@ -378,7 +387,6 @@ export default class VideoPlayer extends Component {
                 {this.renderSkipperButtons()}
 
               </View>
-              <Image  style={styles.dividerStyle} source={dividerImage}/>
             </View>
           </View>
 
@@ -460,8 +468,10 @@ const styles = StyleSheet.create({
   videoContainerFullScreen: {
     position: 'absolute',
     zIndex: 50,
-    height: '100%',
+    height: '90%',
     width: '100%',
+    top:0,
+    backgroundColor:'white'
   },
   previewScreen: {
     flex: 1,
@@ -470,9 +480,10 @@ const styles = StyleSheet.create({
   },
   fullScreen: {
     position: 'absolute',
-    height:'100%',
+    height:'100%%',
     width:'100%',
-    zIndex: 50
+    zIndex: 50,
+    top:0,
   },
   skipperContainer: {
     top: -4,
@@ -541,7 +552,10 @@ const styles = StyleSheet.create({
     flex:1,
     backgroundColor: "transparent",
     borderRadius: 5,
-    top: -5,
+    bottom: 0,
+    position:'absolute',
+    width: "100%",
+    opacity:.5
   },
   controlsFullScreen: {
     display: 'none',

@@ -22,13 +22,13 @@ export default class Navbar extends Component {
 
   componentDidMount() {
     //Lock Orientation to Portrait
-    Orientation.addOrientationListener(this._orientationDidChange.bind(this));
+   // Orientation.addOrientationListener(this._orientationDidChange.bind(this));
   }
 
 
   componentWillUnmount() {
     // Remember to remove listener
-    Orientation.removeOrientationListener(this._orientationDidChange.bind(this));
+    //Orientation.removeOrientationListener(this._orientationDidChange.bind(this));
   }
 
   render() {
