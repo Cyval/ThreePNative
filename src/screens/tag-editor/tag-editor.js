@@ -61,6 +61,7 @@ export default class VideoPlayer extends Component {
       percentage: {x: 0, y: 0},
       modalVisible: false,
       tagActive:false,
+      tagSeconds: 4,
      }
   }
 
@@ -148,27 +149,6 @@ export default class VideoPlayer extends Component {
     {
       let skipValue = duration / 5;
 
-      // switch(i) {
-      //   case 0:
-      //     skipValue = 0;
-      //     break;
-      //   case 1:
-      //     skipValue = skipValue;
-      //     break;
-      //   case 2:
-      //     skipValue = skipValue * 2;
-      //     break;
-      //   case 3:
-      //     skipValue = skipValue * 3;
-      //     break;
-      //   case 4:
-      //     skipValue = skipValue * 4;
-      //     break;
-      //   default:
-      //     skipValue = 0;
-      //     break;
-      // }
-
       buttons.push(
 
         <View style={skipButton[i] ? styles.skipperButtonActive : styles.skipperButton} key={'skipper_' + i}>
@@ -180,7 +160,6 @@ export default class VideoPlayer extends Component {
             </View>
           </TouchableWithoutFeedback>
         </View>
-
 
       )
     }
@@ -247,7 +226,7 @@ export default class VideoPlayer extends Component {
       width: 24,
       right: 8,
       padding: 4,
-      top: 0 + 36,
+      top: 36,
     }
   }
 
@@ -270,6 +249,36 @@ export default class VideoPlayer extends Component {
       }
     }
 
+  }
+
+  modalStyle() {
+    if (this.state.percentage.x > 50) {
+      return {
+        height: '80%',
+        width: '45%',
+        backgroundColor: 'rgba(225,225,225,0.6)',
+        borderRadius: 10,
+        marginLeft: '2.5%',
+        justifyContent: 'center',
+        marginTop: '5%'
+      }
+    } else {
+      return {
+        height: '80%',
+        width: '45%',
+        backgroundColor: 'rgba(225,225,225,0.6)',
+        borderRadius: 10,
+        marginLeft: '52.5%',
+        justifyContent: 'center',
+        marginTop: '5%'
+      }
+    }
+  }
+
+  setTagSeconds(value) {
+    this.setState({
+      tagSeconds: value
+    })
   }
 
   componentDidMount() {
@@ -305,12 +314,27 @@ export default class VideoPlayer extends Component {
           onRequestClose={() => {
             alert('Modal has been closed.');
           }}>
-          <View style={modalStyle.mainView}>
+          <View style={this.modalStyle()}>
             <View style={{alignSelf: 'center'}}>
-              <Text>CHOOSE TAG TYPE</Text>
+
               <TouchableWithoutFeedback onPress={()=>this.setState({modalVisible:false})}>
-                <Text>Close</Text>
+                <IconF style={{
+                  alignSelf: 'flex-end',
+                  padding: 4}} name={'times'} color={'#8EA2C2'} size={25}/>
               </TouchableWithoutFeedback>
+
+
+              <Text style={modalStyle.headerTitle}>CHOOSE TAG TYPE</Text>
+
+              <Slider
+                value={4}
+                maximumValue={10}
+                onValueChange={value => this.setTagSeconds(value)}
+                trackStyle={tagSecondSliderStyle.track}
+                thumbStyle={tagSecondSliderStyle.thumb}
+                minimumTrackTintColor='#FFF'
+              />
+
             </View>
           </View>
         </Modal>
@@ -322,7 +346,7 @@ export default class VideoPlayer extends Component {
                                         onLayout={(e) => this.measureView(e)}>
                   <Video
                     ref={ref => (this.videoPlayer = ref)}
-                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
+                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunnys.mp4"}}
                     style={styles.fullScreen}
                     rate={this.state.rate}
                     paused={this.state.paused}
@@ -415,15 +439,30 @@ const sliderStyle = StyleSheet.create({
   }
 });
 
+const tagSecondSliderStyle = StyleSheet.create({
+  track: {
+    height: 3,
+    borderRadius: 1,
+    backgroundColor: '#FFF',
+  },
+  thumb: {
+    width: 20,
+    height: 20,
+    borderWidth: 3,
+    borderRadius: 50,
+    borderColor: '#FFFFFF',
+    backgroundColor: '#9EA5A4',
+  }
+});
+
 const modalStyle = StyleSheet.create({
-  mainView: {
-    height: '80%',
-    width: '80%',
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 10,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginTop: '5%'
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: {width: 0, height: 3},
+    textShadowRadius: 5
   }
 });
 
@@ -480,7 +519,7 @@ const styles = StyleSheet.create({
   },
   fullScreen: {
     position: 'absolute',
-    height:'100%%',
+    height:'100%',
     width:'100%',
     zIndex: 50,
     top:0,
