@@ -335,6 +335,40 @@ export default class VideoPlayer extends Component {
                 minimumTrackTintColor='#FFF'
               />
 
+              <View style={modalStyle.secondsContainer}>
+                <View style={modalStyle.defaultSecondsContainer}>
+                  <Text style={modalStyle.defaultSeconds}>Default is 4 seconds</Text>
+                </View>
+
+                <View style={modalStyle.tagSecondsContainer}>
+                  <Text style={modalStyle.tagSeconds}>{this.state.tagSeconds.toFixed(1)} sec</Text>
+                </View>
+              </View>
+
+
+              <View style={modalStyle.tagTypes}>
+                <View style={modalStyle.tagColumn}>
+                  <TouchableWithoutFeedback>
+                    <View style={modalStyle.redTag} />
+                  </TouchableWithoutFeedback>
+                  <Text style={modalStyle.tagLabel}>"Buy Now"</Text>
+                </View>
+                <View style={modalStyle.tagColumn}>
+                  <TouchableWithoutFeedback>
+                    <View style={modalStyle.blueTag} />
+                  </TouchableWithoutFeedback>
+                  <Text style={modalStyle.tagLabel}>"Track Music"</Text>
+                </View>
+                <View style={modalStyle.tagColumn}>
+                  <TouchableWithoutFeedback>
+                    <View style={modalStyle.greenTag} />
+                  </TouchableWithoutFeedback>
+                  <Text style={modalStyle.tagLabel}>"More Info"</Text>
+                </View>
+
+              </View>
+
+
             </View>
           </View>
         </Modal>
@@ -463,6 +497,65 @@ const modalStyle = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: {width: 0, height: 3},
     textShadowRadius: 5
+  },
+  secondsContainer: {
+    flex: 0,
+    flexDirection: 'row',
+  },
+  defaultSecondsContainer: {
+    flex: 1,
+  },
+  defaultSeconds: {
+    fontSize: 14,
+    color: '#FFF',
+  },
+  tagSecondsContainer: {
+    flex: 1,
+    backgroundColor: '#9EA5A4',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    textAlign: 'center'
+  },
+  tagSeconds: {
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#FFF',
+  },
+  tagTypes: {
+    marginTop: 20,
+    flex: 0,
+    flexDirection: 'row',
+  },
+  tagColumn: {
+    flex: 1,
+    width: '33%',
+  },
+  tagLabel: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  redTag: {
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#D11313'
+  },
+  blueTag: {
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#3D359B'
+  },
+  greenTag: {
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#399B35'
   }
 });
 
