@@ -29,6 +29,7 @@ import dividerImage from '../../assets/divider.png';
 import titleDividerImage from '../../assets/title-divider.png';
 import editImage from '../../assets/edit.png';
 import tagImage from '../../assets/tag.png';
+import timerImage from '../../assets/timer.png';
 import crosshair from '../../assets/crosshair.png';
 import NavBar from '../../components/Navbar/Navbar';
 import IconF from 'react-native-vector-icons/FontAwesome';
@@ -319,12 +320,16 @@ export default class VideoPlayer extends Component {
 
               <TouchableWithoutFeedback onPress={()=>this.setState({modalVisible:false})}>
                 <IconF style={{
-                  alignSelf: 'flex-end',
-                  padding: 4}} name={'times'} color={'#8EA2C2'} size={25}/>
+                  alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
               </TouchableWithoutFeedback>
 
 
               <Text style={modalStyle.headerTitle}>CHOOSE TAG TYPE</Text>
+
+              <View style={modalStyle.durationContainer}>
+                <Image source={timerImage} style={modalStyle.durationTimer} />
+                <Text style={modalStyle.durationLabel}>DURATION</Text>
+              </View>
 
               <Slider
                 value={4}
@@ -498,6 +503,21 @@ const modalStyle = StyleSheet.create({
     textShadowOffset: {width: 0, height: 3},
     textShadowRadius: 5
   },
+  durationContainer: {
+    flex: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  durationTimer: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  durationLabel: {
+    fontSize: 18,
+    color: '#FFF'
+  },
   secondsContainer: {
     flex: 0,
     flexDirection: 'row',
@@ -506,21 +526,24 @@ const modalStyle = StyleSheet.create({
     flex: 1,
   },
   defaultSeconds: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#FFF',
   },
   tagSecondsContainer: {
     flex: 1,
-    backgroundColor: '#9EA5A4',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     textAlign: 'center'
   },
   tagSeconds: {
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 12,
     color: '#FFF',
+    backgroundColor: '#9EA5A4',
+    borderWidth: 1,
+    width: '60%',
+    borderColor: 'rgba(0,0,0,0.4)',
+    alignSelf: 'center',
+    borderRadius: 5,
   },
   tagTypes: {
     marginTop: 20,
@@ -534,28 +557,39 @@ const modalStyle = StyleSheet.create({
   tagLabel: {
     color: '#FFF',
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 10,
+    marginTop: 10,
+    marginBottom: 30,
   },
   redTag: {
     alignSelf: 'center',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    backgroundColor: '#D11313'
+    backgroundColor: '#D11313',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5
   },
   blueTag: {
     alignSelf: 'center',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    backgroundColor: '#3D359B'
+    backgroundColor: '#3D359B',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5
   },
   greenTag: {
     alignSelf: 'center',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    backgroundColor: '#399B35'
+    backgroundColor: '#399B35',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5
   }
 });
 
