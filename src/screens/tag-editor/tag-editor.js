@@ -61,6 +61,7 @@ export default class VideoPlayer extends Component {
       percentage: {x: 0, y: 0},
       modalVisible: false,
       tagActive:false,
+      tagSeconds: 4,
      }
   }
 
@@ -148,27 +149,6 @@ export default class VideoPlayer extends Component {
     {
       let skipValue = duration / 5;
 
-      // switch(i) {
-      //   case 0:
-      //     skipValue = 0;
-      //     break;
-      //   case 1:
-      //     skipValue = skipValue;
-      //     break;
-      //   case 2:
-      //     skipValue = skipValue * 2;
-      //     break;
-      //   case 3:
-      //     skipValue = skipValue * 3;
-      //     break;
-      //   case 4:
-      //     skipValue = skipValue * 4;
-      //     break;
-      //   default:
-      //     skipValue = 0;
-      //     break;
-      // }
-
       buttons.push(
 
         <View style={skipButton[i] ? styles.skipperButtonActive : styles.skipperButton} key={'skipper_' + i}>
@@ -180,7 +160,6 @@ export default class VideoPlayer extends Component {
             </View>
           </TouchableWithoutFeedback>
         </View>
-
 
       )
     }
@@ -247,7 +226,7 @@ export default class VideoPlayer extends Component {
       width: 24,
       right: 8,
       padding: 4,
-      top: 0 + 36,
+      top: 36,
     }
   }
 
@@ -270,6 +249,36 @@ export default class VideoPlayer extends Component {
       }
     }
 
+  }
+
+  modalStyle() {
+    if (this.state.percentage.x > 50) {
+      return {
+        height: '80%',
+        width: '45%',
+        backgroundColor: 'rgba(225,225,225,0.6)',
+        borderRadius: 10,
+        marginLeft: '2.5%',
+        justifyContent: 'center',
+        marginTop: '5%'
+      }
+    } else {
+      return {
+        height: '80%',
+        width: '45%',
+        backgroundColor: 'rgba(225,225,225,0.6)',
+        borderRadius: 10,
+        marginLeft: '52.5%',
+        justifyContent: 'center',
+        marginTop: '5%'
+      }
+    }
+  }
+
+  setTagSeconds(value) {
+    this.setState({
+      tagSeconds: value
+    })
   }
 
   componentDidMount() {
@@ -305,12 +314,61 @@ export default class VideoPlayer extends Component {
           onRequestClose={() => {
             alert('Modal has been closed.');
           }}>
-          <View style={modalStyle.mainView}>
+          <View style={this.modalStyle()}>
             <View style={{alignSelf: 'center'}}>
-              <Text>CHOOSE TAG TYPE</Text>
+
               <TouchableWithoutFeedback onPress={()=>this.setState({modalVisible:false})}>
-                <Text>Close</Text>
+                <IconF style={{
+                  alignSelf: 'flex-end',
+                  padding: 4}} name={'times'} color={'#8EA2C2'} size={25}/>
               </TouchableWithoutFeedback>
+
+
+              <Text style={modalStyle.headerTitle}>CHOOSE TAG TYPE</Text>
+
+              <Slider
+                value={4}
+                maximumValue={10}
+                onValueChange={value => this.setTagSeconds(value)}
+                trackStyle={tagSecondSliderStyle.track}
+                thumbStyle={tagSecondSliderStyle.thumb}
+                minimumTrackTintColor='#FFF'
+              />
+
+              <View style={modalStyle.secondsContainer}>
+                <View style={modalStyle.defaultSecondsContainer}>
+                  <Text style={modalStyle.defaultSeconds}>Default is 4 seconds</Text>
+                </View>
+
+                <View style={modalStyle.tagSecondsContainer}>
+                  <Text style={modalStyle.tagSeconds}>{this.state.tagSeconds.toFixed(1)} sec</Text>
+                </View>
+              </View>
+
+
+              <View style={modalStyle.tagTypes}>
+                <View style={modalStyle.tagColumn}>
+                  <TouchableWithoutFeedback>
+                    <View style={modalStyle.redTag} />
+                  </TouchableWithoutFeedback>
+                  <Text style={modalStyle.tagLabel}>"Buy Now"</Text>
+                </View>
+                <View style={modalStyle.tagColumn}>
+                  <TouchableWithoutFeedback>
+                    <View style={modalStyle.blueTag} />
+                  </TouchableWithoutFeedback>
+                  <Text style={modalStyle.tagLabel}>"Track Music"</Text>
+                </View>
+                <View style={modalStyle.tagColumn}>
+                  <TouchableWithoutFeedback>
+                    <View style={modalStyle.greenTag} />
+                  </TouchableWithoutFeedback>
+                  <Text style={modalStyle.tagLabel}>"More Info"</Text>
+                </View>
+
+              </View>
+
+
             </View>
           </View>
         </Modal>
@@ -322,7 +380,7 @@ export default class VideoPlayer extends Component {
                                         onLayout={(e) => this.measureView(e)}>
                   <Video
                     ref={ref => (this.videoPlayer = ref)}
-                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunny.mp4"}}
+                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunnys.mp4"}}
                     style={styles.fullScreen}
                     rate={this.state.rate}
                     paused={this.state.paused}
@@ -415,15 +473,89 @@ const sliderStyle = StyleSheet.create({
   }
 });
 
+const tagSecondSliderStyle = StyleSheet.create({
+  track: {
+    height: 3,
+    borderRadius: 1,
+    backgroundColor: '#FFF',
+  },
+  thumb: {
+    width: 20,
+    height: 20,
+    borderWidth: 3,
+    borderRadius: 50,
+    borderColor: '#FFFFFF',
+    backgroundColor: '#9EA5A4',
+  }
+});
+
 const modalStyle = StyleSheet.create({
-  mainView: {
-    height: '80%',
-    width: '80%',
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 10,
-    alignSelf: 'center',
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: {width: 0, height: 3},
+    textShadowRadius: 5
+  },
+  secondsContainer: {
+    flex: 0,
+    flexDirection: 'row',
+  },
+  defaultSecondsContainer: {
+    flex: 1,
+  },
+  defaultSeconds: {
+    fontSize: 14,
+    color: '#FFF',
+  },
+  tagSecondsContainer: {
+    flex: 1,
+    backgroundColor: '#9EA5A4',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
-    marginTop: '5%'
+    textAlign: 'center'
+  },
+  tagSeconds: {
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#FFF',
+  },
+  tagTypes: {
+    marginTop: 20,
+    flex: 0,
+    flexDirection: 'row',
+  },
+  tagColumn: {
+    flex: 1,
+    width: '33%',
+  },
+  tagLabel: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  redTag: {
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#D11313'
+  },
+  blueTag: {
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#3D359B'
+  },
+  greenTag: {
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#399B35'
   }
 });
 
@@ -480,7 +612,7 @@ const styles = StyleSheet.create({
   },
   fullScreen: {
     position: 'absolute',
-    height:'100%%',
+    height:'100%',
     width:'100%',
     zIndex: 50,
     top:0,
