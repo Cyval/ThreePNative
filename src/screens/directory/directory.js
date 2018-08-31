@@ -183,8 +183,8 @@ export default class Directory extends Component {
           keyPrefix: "videos/",
           bucket: "3p-videos",
           region: "ap-southeast-1",
-          accessKey: "AKIAIBWRTCG3NVSJQPVQ",
-          secretKey: "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",
+          accessKey: "",
+          secretKey: "",
           successActionStatus: 201
         };
 
