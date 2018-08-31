@@ -27,9 +27,24 @@ import sample from '../../assets/sample.png';
 import sample1 from '../../assets/sample1.png';
 import sample2 from '../../assets/sample2.png';
 
-import {Accordion} from "native-base";
+import {Accordion} from 'native-base';
+import ImagePicker from 'react-native-image-picker';
+import { RNS3 } from 'react-native-aws3';
 
 const screenWidth = Dimensions.get('window').width;
+
+var options = {
+  title: 'Select Avatar',
+  customButtons: [
+    {name: 'fb', title: 'Choose Photo from Facebook'},
+  ],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images'
+  },
+  mediaType: 'video'
+};
+
 
 export default class Directory extends Component {
   constructor(props) {
@@ -54,7 +69,7 @@ export default class Directory extends Component {
     }
   }
 
-  componentDidMount(){
+  componentDidMount() {
 
   }
 
@@ -76,16 +91,33 @@ export default class Directory extends Component {
   _renderContent = (dataArray) => {
 
     const addCompo = (
-      <View key={'90a'} style={{margin: screenWidth * .03 , width: screenWidth * .39 , height: 100, backgroundColor: '#9ab7ff', borderRadius: 5, justifyContent:'center'}}>
-        <Icon name={'plus'} size={30} color={'white'} style={{alignSelf:'center'}}/>
-      </View> );
+      <TouchableWithoutFeedback key={'90a'} onPress={() => {
+        this.pickVideo();
+      }}>
+        <View key={'90a'} style={{
+          margin: screenWidth * .03,
+          width: screenWidth * .39,
+          height: 100,
+          backgroundColor: '#9ab7ff',
+          borderRadius: 5,
+          justifyContent: 'center'
+        }}>
+          <Icon name={'plus'} size={30} color={'white'} style={{alignSelf: 'center'}}/>
+        </View>
+      </TouchableWithoutFeedback>);
 
-    let vids = dataArray.content.map((vid,index) => {
+    let vids = dataArray.content.map((vid, index) => {
       return (
         <TouchableWithoutFeedback key={index} onPress={() => {
           this.props.navigation.navigate('TagEditor')
         }}>
-          <Image source={vid.image} key={index} style={{margin: screenWidth * .03 , width: screenWidth * .39, height: 100, backgroundColor: '#9ab7ff', borderRadius: 5}}>
+          <Image source={vid.image} key={index} style={{
+            margin: screenWidth * .03,
+            width: screenWidth * .39,
+            height: 100,
+            backgroundColor: '#9ab7ff',
+            borderRadius: 5
+          }}>
 
           </Image>
         </TouchableWithoutFeedback>
@@ -96,11 +128,21 @@ export default class Directory extends Component {
 
     return (
       <View>
-        <View style={{alignItems:'center', flexDirection: 'row', width: '90%', flexWrap: 'wrap', alignSelf: 'center'}}>
+        <View style={{alignItems: 'center', flexDirection: 'row', width: '90%', flexWrap: 'wrap', alignSelf: 'center'}}>
           {vids}
         </View>
-        <View style={{justifyContent:'center',marginBottom:20, alignSelf:'center', borderWidth:3, borderRadius:20, borderColor:'white', width:'80%', padding:10,}}>
-          <Text style={{alignSelf:'center',color:'white', fontSize:20}}> <Icon name={'globe'} size={30}/> GLOBAL</Text>
+        <View style={{
+          justifyContent: 'center',
+          marginBottom: 20,
+          alignSelf: 'center',
+          borderWidth: 3,
+          borderRadius: 20,
+          borderColor: 'white',
+          width: '80%',
+          padding: 10,
+        }}>
+          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}> <Icon name={'globe'}
+                                                                                   size={30}/> GLOBAL</Text>
         </View>
       </View>
     );
@@ -112,6 +154,57 @@ export default class Directory extends Component {
     this.setState({
       orientation
     })
+  }
+
+  pickVideo() {
+    ImagePicker.launchImageLibrary(options, (response) => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      }
+      else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      }
+      else if (response.customButton) {
+        alert('User tapped custom button: ', response.customButton);
+      }
+      else {
+        let source = {uri: response.uri};
+
+        const file = {
+          // `uri` can also be a file system path (i.e. file://)
+          uri: response.uri,
+          name: response.fileName || 'sample',
+          type: "image/png"
+        };
+
+        const options = {
+          keyPrefix: "videos/",
+          bucket: "3p-videos",
+          region: "ap-southeast-1",
+          accessKey: "AKIAIBWRTCG3NVSJQPVQ",
+          secretKey: "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",
+          successActionStatus: 201
+        };
+
+        RNS3.put(file, options).then(response => {
+
+          if (response.status !== 201) {
+            throw new Error("Failed to upload image to S3");
+            return;
+          };
+
+          alert("uploaded");
+
+        });
+
+
+        this.setState({
+          avatarSource: source
+        });
+      }
+    });
   }
 
   render() {
