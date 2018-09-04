@@ -15,7 +15,9 @@ import {
   ImageBackground,
   Dimensions,
   Image,
-  Modal
+  Modal,
+  Animated,
+  Easing
 } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base';
 import Video from 'react-native-video';
@@ -29,7 +31,9 @@ import dividerImage from '../../assets/divider.png';
 import titleDividerImage from '../../assets/title-divider.png';
 import editImage from '../../assets/edit.png';
 import tagImage from '../../assets/tag.png';
+import timerImage from '../../assets/timer.png';
 import crosshair from '../../assets/crosshair.png';
+import chevron from '../../assets/chevron-down.png';
 import NavBar from '../../components/Navbar/Navbar';
 import IconF from 'react-native-vector-icons/FontAwesome';
 
@@ -251,6 +255,100 @@ export default class VideoPlayer extends Component {
 
   }
 
+  chevronStyle() {
+
+    console.log(this.state.tagActive)
+
+    let spinValue = new Animated.Value(0);
+
+    // First set up animation
+    Animated.timing(
+      spinValue,
+      {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.linear,
+        useNativeDriver: true
+      }
+    ).start();
+
+    // Second interpolate beginning and end values (in this case 0 and 1)
+    const spin = spinValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '180deg']
+    });
+
+    const spinDown = spinValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['180deg', '0deg']
+    });
+
+    if (this.state.tagActive) {
+      return  {
+        transform: [{rotate: spin}]
+      }
+    } else {
+      return {
+        transform: [{rotate: spinDown}]
+      }
+    }
+
+  }
+
+  controlsStyle() {
+
+    let slideValue = new Animated.Value(0);
+
+    // First set up animation
+    Animated.timing(
+      slideValue,
+      {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.linear,
+        useNativeDriver: true
+      }
+    ).start();
+
+    // Second interpolate beginning and end values (in this case 0 and 1)
+    const slideUp = slideValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [60, -60]
+    });
+
+    const slideDown = slideValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [-60, 60]
+    });
+
+    if (this.state.tagActive) {
+      return {
+        flex:1,
+        backgroundColor: "transparent",
+        borderRadius: 5,
+        bottom: 0,
+        position:'absolute',
+        width: "100%",
+        opacity: 1,
+        transform: [{translateY: slideUp}]
+      }
+    } else {
+      return {
+        flex:1,
+        backgroundColor: "transparent",
+        borderRadius: 5,
+        bottom: 0,
+        position:'absolute',
+        width: "100%",
+        opacity: 1,
+        transform: [{translateY: slideDown}]
+      }
+    }
+
+
+
+  }
+
   modalStyle() {
     if (this.state.percentage.x > 50) {
       return {
@@ -302,7 +400,7 @@ export default class VideoPlayer extends Component {
   renderCustomSkin() {
     const flexCompleted = this.getCurrentTimePercentage() * 100;
     const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
-    let {orientation} = this.state;
+    let {tagActive} = this.state;
     return (
       <Container>
 
@@ -319,12 +417,16 @@ export default class VideoPlayer extends Component {
 
               <TouchableWithoutFeedback onPress={()=>this.setState({modalVisible:false})}>
                 <IconF style={{
-                  alignSelf: 'flex-end',
-                  padding: 4}} name={'times'} color={'#8EA2C2'} size={25}/>
+                  alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
               </TouchableWithoutFeedback>
 
 
               <Text style={modalStyle.headerTitle}>CHOOSE TAG TYPE</Text>
+
+              <View style={modalStyle.durationContainer}>
+                <Image source={timerImage} style={modalStyle.durationTimer} />
+                <Text style={modalStyle.durationLabel}>DURATION</Text>
+              </View>
 
               <Slider
                 value={4}
@@ -420,11 +522,19 @@ export default class VideoPlayer extends Component {
               </TouchableWithoutFeedback>
             </View>
 
+            {/*CROSSHAIR ELEMENT*/}
             <TouchableWithoutFeedback onPress={(e) => {this.handleCrosshair(e)}} >
               <Image style={this.crosshairStyle()} source={crosshair}/>
             </TouchableWithoutFeedback>
 
-            <View style={[styles.controls,{display:this.state.tagActive ? 'none': 'flex'}]}>
+            <Animated.View style={this.controlsStyle()}>
+              <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
+                <View style={styles.slidePuller}>
+                  <Animated.Image style={this.chevronStyle()} source={chevron}/>
+                </View>
+              </TouchableWithoutFeedback>
+              <View style={styles.skipperContainerBarTop}>
+              </View>
               <Text style={textStyles.videoTime} pointerEvents="none">
                 {moment.utc(Math.floor(this.state.currentTime)*1000).format('HH:mm:ss')} / {moment.utc(Math.floor(this.state.duration)*1000).format('HH:mm:ss')}
               </Text>
@@ -436,16 +546,17 @@ export default class VideoPlayer extends Component {
                 thumbStyle={sliderStyle.thumb}
                 minimumTrackTintColor='#77B95B'
               />
-              <View style={styles.skipperContainer}>
-
+              <View style={styles.skipperContainerBarBottom}>
               </View>
 
-              <View style={styles.skipperButtonContainer}>
+              <View style={styles.skipperLandScapeContainer}>
+                <View style={styles.skipperButtonContainer}>
 
-                {this.renderSkipperButtons()}
+                  {this.renderSkipperButtons()}
 
+                </View>
               </View>
-            </View>
+            </Animated.View>
           </View>
 
         </ImageBackground>
@@ -498,6 +609,21 @@ const modalStyle = StyleSheet.create({
     textShadowOffset: {width: 0, height: 3},
     textShadowRadius: 5
   },
+  durationContainer: {
+    flex: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  durationTimer: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  durationLabel: {
+    fontSize: 18,
+    color: '#FFF'
+  },
   secondsContainer: {
     flex: 0,
     flexDirection: 'row',
@@ -506,21 +632,24 @@ const modalStyle = StyleSheet.create({
     flex: 1,
   },
   defaultSeconds: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#FFF',
   },
   tagSecondsContainer: {
     flex: 1,
-    backgroundColor: '#9EA5A4',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     textAlign: 'center'
   },
   tagSeconds: {
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 12,
     color: '#FFF',
+    backgroundColor: '#9EA5A4',
+    borderWidth: 1,
+    width: '60%',
+    borderColor: 'rgba(0,0,0,0.4)',
+    alignSelf: 'center',
+    borderRadius: 5,
   },
   tagTypes: {
     marginTop: 20,
@@ -534,28 +663,39 @@ const modalStyle = StyleSheet.create({
   tagLabel: {
     color: '#FFF',
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 10,
+    marginTop: 10,
+    marginBottom: 30,
   },
   redTag: {
     alignSelf: 'center',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    backgroundColor: '#D11313'
+    backgroundColor: '#D11313',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5
   },
   blueTag: {
     alignSelf: 'center',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    backgroundColor: '#3D359B'
+    backgroundColor: '#3D359B',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5
   },
   greenTag: {
     alignSelf: 'center',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    backgroundColor: '#399B35'
+    backgroundColor: '#399B35',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5
   }
 });
 
@@ -567,7 +707,7 @@ const textStyles = StyleSheet.create({
     paddingLeft: 2,
     paddingRight: 2,
     lineHeight: 12,
-    paddingTop: 15,
+    paddingTop: 25,
     zIndex: 10,
     position: 'absolute',
   },
@@ -617,16 +757,43 @@ const styles = StyleSheet.create({
     zIndex: 50,
     top:0,
   },
-  skipperContainer: {
-    top: -4,
+  slidePuller: {
     backgroundColor: '#554358',
-    height: 15,
+    right: 0,
+    width: 20,
+    borderRadius: 20,
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  skipperChevron: {
+    top: 4,
+    backgroundColor: '#554358',
+    height: 10,
     width: '100%',
     zIndex: -1
   },
-  skipperButtonContainer: {
-    top: -15,
+  skipperContainerBarTop: {
+    top: 4,
+    backgroundColor: '#554358',
+    height: 10,
     width: '100%',
+    zIndex: -1
+  },
+  skipperContainerBarBottom: {
+    top: -4,
+    backgroundColor: '#554358',
+    height: 10,
+    width: '100%',
+    zIndex: -1
+  },
+  skipperLandScapeContainer: {
+    top: -16,
+    flex: 0,
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  skipperButtonContainer: {
+    width: '60%',
     height: 30,
     flex: 0,
     flexDirection: 'row',
@@ -680,15 +847,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: '#FFFFFF',
   },
-  controls: {
-    flex:1,
-    backgroundColor: "transparent",
-    borderRadius: 5,
-    bottom: 0,
-    position:'absolute',
-    width: "100%",
-    opacity:.5
-  },
+
   controlsFullScreen: {
     display: 'none',
     height: 0
