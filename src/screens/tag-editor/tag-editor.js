@@ -19,7 +19,7 @@ import {
   Animated,
   Easing
 } from 'react-native';
-import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base';
+import { Container, Header, Left, Body, Right, Button, Icon, Title, Content, Accordion } from 'native-base';
 import Video from 'react-native-video';
 import Slider from 'react-native-slider';
 import moment from 'moment';
@@ -64,9 +64,11 @@ export default class VideoPlayer extends Component {
       coords: {x: 0, y: 0},
       percentage: {x: 0, y: 0},
       modalVisible: false,
+      tagsModalVisible: false,
       tagActive: false,
       prevTagActive: true,
       tagSeconds: 4,
+      tags: [] // Fetch array from tags data when available
      }
   }
 
@@ -368,6 +370,45 @@ export default class VideoPlayer extends Component {
     })
   }
 
+  toggleTagsDirectoryModal() {
+    this.setState({
+      tagsModalVisible: !this.state.tagsModalVisible
+    })
+  }
+
+  handleTagTypeButton(type) {
+    let {tags, currentTime, tagSeconds} = this.state;
+    let tagId = Math.random().toString(36).slice(-8);
+    let tag = {
+      startTime: currentTime,
+      endTime: currentTime + tagSeconds,
+      tagDuration: tagSeconds,
+      tagId,
+      type,
+      title: "",
+      information: "",
+      sourceUrl: ""
+    };
+    tags.push(tag);
+    this.setState({modalVisible: false, tagsModalVisible: true});
+  }
+
+  handleEditTag(type) {
+
+    //TODO: Find tagId from tags array and modify data
+
+    // let {tags, currentTime, tagSeconds} = this.state;
+    // let tag = {
+    //   startTime: currentTime,
+    //   endTime: currentTime + tagSeconds,
+    //   tagDuration: tagSeconds,
+    //   tagId: Math.random().toString(36).slice(-8),
+    //   type: type
+    // };
+    //
+    // tags.push(tag)
+  }
+
   componentDidMount() {
     //Lock Orientation to Landscape
     // Orientation.lockToPortrait();
@@ -385,6 +426,43 @@ export default class VideoPlayer extends Component {
     // Remember to remove listener
     Orientation.removeOrientationListener(this._orientationDidChange.bind(this));
   }
+
+  _renderHeader = (dataArray, expanded) => {
+    return (
+      <View style={{flexDirection: 'row', width: '95%', alignSelf: 'center'}}>
+        <View style={{flex: 1, justifyContent: 'center',}}>
+          <IconF style={{alignSelf: 'center'}} name={'chevron-right'} color={'white'} size={25}/>
+        </View>
+        <View style={{flex: 9}}>
+          <View style={accordionStyle.listStyle}>
+            <Text style={accordionStyle.title}>{dataArray.type + " Tag"}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  _renderContent = (dataArray) => {
+    return (
+      <View>
+        <View style={{
+          justifyContent: 'center',
+          marginBottom: 20,
+          alignSelf: 'center',
+          borderWidth: 3,
+          borderRadius: 20,
+          borderColor: 'white',
+          width: '80%',
+          padding: 10,
+        }}>
+          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>TagID: {dataArray.tagId}</Text>
+          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>Duration: {dataArray.tagDuration}</Text>
+          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>Type: {dataArray.type}</Text>
+        </View>
+      </View>
+    );
+  }
+
 
   renderCustomSkin() {
     const flexCompleted = this.getCurrentTimePercentage() * 100;
@@ -408,7 +486,6 @@ export default class VideoPlayer extends Component {
                 <IconF style={{
                   alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
               </TouchableWithoutFeedback>
-
 
               <Text style={modalStyle.headerTitle}>CHOOSE TAG TYPE</Text>
 
@@ -436,31 +513,62 @@ export default class VideoPlayer extends Component {
                 </View>
               </View>
 
-
               <View style={modalStyle.tagTypes}>
                 <View style={modalStyle.tagColumn}>
-                  <TouchableWithoutFeedback>
+                  <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'red')}>
                     <View style={modalStyle.redTag} />
                   </TouchableWithoutFeedback>
                   <Text style={modalStyle.tagLabel}>"Buy Now"</Text>
                 </View>
                 <View style={modalStyle.tagColumn}>
-                  <TouchableWithoutFeedback>
+                  <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'blue')}>
                     <View style={modalStyle.blueTag} />
                   </TouchableWithoutFeedback>
                   <Text style={modalStyle.tagLabel}>"Track Music"</Text>
                 </View>
                 <View style={modalStyle.tagColumn}>
-                  <TouchableWithoutFeedback>
+                  <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'green')}>
                     <View style={modalStyle.greenTag} />
                   </TouchableWithoutFeedback>
                   <Text style={modalStyle.tagLabel}>"More Info"</Text>
                 </View>
-
               </View>
 
-
             </View>
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.tagsModalVisible}
+          supportedOrientations={['portrait','landscape']}
+          onRequestClose={() => {
+            alert('Modal has been closed.');
+          }}>
+          <View style={tagDirectory.modalStyle}>
+
+            <TouchableWithoutFeedback onPress={()=>this.setState({tagsModalVisible:false})}>
+              <IconF style={{
+                right: 15}} name={'times'} color={'#8EA2C2'} size={25}/>
+            </TouchableWithoutFeedback>
+
+            <View style={tagDirectory.header}>
+              <Image style={tagDirectory.headerIcon} source={tagImage}/>
+              <Text style={tagDirectory.headerTitle}>TAG DIRECTORY</Text>
+            </View>
+
+            <View style={{flex: 9}}>
+              <Accordion
+                dataArray={this.state.tags}
+                style={{borderColor: 'transparent'}}
+                contentStyle={{borderColor: 'transparent'}}
+                headerStyle={styles.listStyle}
+                renderHeader={this._renderHeader}
+                renderContent={this._renderContent}
+              />
+            </View>
+
           </View>
         </Modal>
 
@@ -558,6 +666,52 @@ export default class VideoPlayer extends Component {
   }
 }
 
+const accordionStyle = StyleSheet.create({
+  listStyle: {
+    borderBottomColor: "#fff",
+    paddingBottom: 10,
+    alignSelf: 'center',
+    borderBottomWidth: 2,
+    width: '90%',
+    marginBottom: 20,
+    color: "white"
+  },
+  title: {
+    color: 'white',
+    fontSize: 20,
+    alignSelf: 'center',
+    fontFamily: 'HelveticaNeue',
+    fontWeight: 'bold'
+  },
+});
+
+const tagDirectory = StyleSheet.create({
+  modalStyle: {
+    height: '90%',
+    width: '45%',
+    backgroundColor: 'rgba(225,225,225,0.6)',
+    borderRadius: 5,
+    marginLeft: '45%',
+    marginTop: '2.5%'
+  },
+  header: {
+    flex: 0,
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  headerIcon: {
+    height: 24,
+    width: 24,
+    marginRight: 10,
+    padding: 4,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+  }
+});
 
 const sliderStyle = StyleSheet.create({
   track: {
