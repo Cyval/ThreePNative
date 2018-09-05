@@ -285,10 +285,16 @@ export default class VideoPlayer extends Component {
 
     if (this.state.tagActive) {
       return  {
+        height: 15,
+        width: 24,
+        marginTop: 5,
         transform: [{rotate: spin}]
       }
     } else {
       return {
+        height: 15,
+        width: 24,
+        marginTop: 5,
         transform: [{rotate: spinDown}]
       }
     }
@@ -313,12 +319,12 @@ export default class VideoPlayer extends Component {
     // Second interpolate beginning and end values (in this case 0 and 1)
     const slideUp = slideValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [60, -60]
+      outputRange: [80, 0]
     });
 
     const slideDown = slideValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [-60, 60]
+      outputRange: [0, 80]
     });
 
     if (this.state.tagActive) {
@@ -330,7 +336,7 @@ export default class VideoPlayer extends Component {
         position:'absolute',
         width: "100%",
         opacity: 1,
-        transform: [{translateY: slideUp}]
+        transform: [{translateY: slideDown}]
       }
     } else {
       return {
@@ -341,7 +347,7 @@ export default class VideoPlayer extends Component {
         position:'absolute',
         width: "100%",
         opacity: 1,
-        transform: [{translateY: slideDown}]
+        transform: [{translateY: slideUp}]
       }
     }
 
@@ -572,7 +578,7 @@ export default class VideoPlayer extends Component {
 
 const sliderStyle = StyleSheet.create({
   track: {
-    height: 36,
+    height: 30,
     borderRadius: 1,
     backgroundColor: '#77B95B',
   },
@@ -707,7 +713,7 @@ const textStyles = StyleSheet.create({
     paddingLeft: 2,
     paddingRight: 2,
     lineHeight: 12,
-    paddingTop: 25,
+    paddingTop: 66,
     zIndex: 10,
     position: 'absolute',
   },
@@ -760,8 +766,10 @@ const styles = StyleSheet.create({
   slidePuller: {
     backgroundColor: '#554358',
     right: 0,
-    width: 20,
-    borderRadius: 20,
+    width: 50,
+    height: 40,
+    top: 20,
+    borderRadius: 10,
     justifyContent: 'center',
     flexDirection: 'row',
   },
@@ -773,21 +781,21 @@ const styles = StyleSheet.create({
     zIndex: -1
   },
   skipperContainerBarTop: {
-    top: 4,
+    top: 7,
     backgroundColor: '#554358',
     height: 10,
     width: '100%',
     zIndex: -1
   },
   skipperContainerBarBottom: {
-    top: -4,
+    top: -7,
     backgroundColor: '#554358',
     height: 10,
     width: '100%',
     zIndex: -1
   },
   skipperLandScapeContainer: {
-    top: -16,
+    top: -19,
     flex: 0,
     flexDirection: 'row',
     justifyContent: 'center'
