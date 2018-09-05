@@ -64,7 +64,8 @@ export default class VideoPlayer extends Component {
       coords: {x: 0, y: 0},
       percentage: {x: 0, y: 0},
       modalVisible: false,
-      tagActive:false,
+      tagActive: false,
+      prevTagActive: true,
       tagSeconds: 4,
      }
   }
@@ -204,6 +205,7 @@ export default class VideoPlayer extends Component {
   handleTag(e) {
     this.setState({
       tagActive: !this.state.tagActive,
+      prevTagActive: !this.state.prevTagActive,
       paused: !this.state.paused
     })
   }
@@ -275,27 +277,24 @@ export default class VideoPlayer extends Component {
     // Second interpolate beginning and end values (in this case 0 and 1)
     const spin = spinValue.interpolate({
       inputRange: [0, 1],
-      outputRange: ['0deg', '180deg']
+      outputRange: [!this.state.tagActive ? '0deg' : '180deg', '180deg']
     });
 
     const spinDown = spinValue.interpolate({
       inputRange: [0, 1],
-      outputRange: ['180deg', '0deg']
+      outputRange: [this.state.tagActive ? '180deg' : '0deg', '0deg']
     });
 
     if (this.state.tagActive) {
+      console.log([!this.state.tagActive ? '0deg' : '180deg', '180deg'])
+
       return  {
-        height: 15,
-        width: 24,
-        marginTop: 5,
-        transform: [{rotate: spin}]
+        transform: [{rotate: '180deg'}]
       }
     } else {
+      console.log([this.state.tagActive ? '180deg' : '0deg', '0deg'])
       return {
-        height: 15,
-        width: 24,
-        marginTop: 5,
-        transform: [{rotate: spinDown}]
+        transform: [{rotate: '0deg'}]
       }
     }
 
@@ -319,39 +318,23 @@ export default class VideoPlayer extends Component {
     // Second interpolate beginning and end values (in this case 0 and 1)
     const slideUp = slideValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [80, 0]
+      outputRange: [!this.state.tagActive ? 80 : 0, 0]
     });
 
     const slideDown = slideValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 80]
+      outputRange: [this.state.tagActive ? 0 : 80, 80]
     });
 
     if (this.state.tagActive) {
       return {
-        flex:1,
-        backgroundColor: "transparent",
-        borderRadius: 5,
-        bottom: 0,
-        position:'absolute',
-        width: "100%",
-        opacity: 1,
-        transform: [{translateY: slideDown}]
+        transform: [{translateY: 80}]
       }
     } else {
       return {
-        flex:1,
-        backgroundColor: "transparent",
-        borderRadius: 5,
-        bottom: 0,
-        position:'absolute',
-        width: "100%",
-        opacity: 1,
-        transform: [{translateY: slideUp}]
+        transform: [{translateY: 0}]
       }
     }
-
-
 
   }
 
@@ -533,10 +516,10 @@ export default class VideoPlayer extends Component {
               <Image style={this.crosshairStyle()} source={crosshair}/>
             </TouchableWithoutFeedback>
 
-            <Animated.View style={this.controlsStyle()}>
+            <Animated.View style={[styles.controlsContainer, this.controlsStyle()]}>
               <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
                 <View style={styles.slidePuller}>
-                  <Animated.Image style={this.chevronStyle()} source={chevron}/>
+                  <Animated.Image style={[styles.slideChevron, this.chevronStyle()]} source={chevron}/>
                 </View>
               </TouchableWithoutFeedback>
               <View style={styles.skipperContainerBarTop}>
@@ -763,6 +746,15 @@ const styles = StyleSheet.create({
     zIndex: 50,
     top:0,
   },
+  controlsContainer: {
+    flex:1,
+    backgroundColor: "transparent",
+    borderRadius: 5,
+    bottom: 0,
+    position:'absolute',
+    width: "100%",
+    opacity: 1,
+  },
   slidePuller: {
     backgroundColor: '#554358',
     right: 0,
@@ -773,12 +765,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
   },
-  skipperChevron: {
-    top: 4,
-    backgroundColor: '#554358',
-    height: 10,
-    width: '100%',
-    zIndex: -1
+  slideChevron: {
+    height: 15,
+    width: 24,
+    marginTop: 5
   },
   skipperContainerBarTop: {
     top: 7,
