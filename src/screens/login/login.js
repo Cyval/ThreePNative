@@ -34,7 +34,7 @@ export default class LoginScreen extends Component {
 
   login = () => {
     const {email, password} = this.state;
-    Axios.post('http://13.251.103.54/api/v1/login',{
+    Axios.post('http://13.229.84.38/api/v1/login',{
       email,
       password
     }).then((res)=>{

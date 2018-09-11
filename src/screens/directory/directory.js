@@ -27,6 +27,7 @@ import {Header, Container, Left, Right, Title, Body} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NavBar from '../../components/Navbar/Navbar';
 import addSub from '../../assets/add-sub.png';
+import IconFilm from '../../assets/iconfilm.png';
 import List from '../../components/directory/list';
 
 import sample from '../../assets/sample.png';
@@ -66,7 +67,9 @@ export default class Directory extends Component {
       userData: {},
       videoUri: '',
       loadingModal: false,
-      progress:0,
+      progress: 0,
+      url: 'http://13.229.84.38',
+      activeAddProject:''
     }
 
   }
@@ -85,7 +88,7 @@ export default class Directory extends Component {
 
     console.log(bodyFormData);
 
-    axios.post('http://13.251.103.54/api/v1/projects/add', {
+    axios.post(`${this.state.url}/api/v1/projects/add`, {
       userId: this.state.userData.userId,
       projectName: this.state.projectTitle
     }).then(response => {
@@ -115,9 +118,11 @@ export default class Directory extends Component {
 
   _renderContent = (dataArray) => {
 
+    console.log(dataArray);
+
     const addCompo = (
       <TouchableWithoutFeedback key={'90a'} onPress={() => {
-        this.setState({modalVisibleVideo: true})
+        this.setState({modalVisibleVideo: true, activeAddProject:dataArray._id})
       }}>
         <View key={'90a'} style={{
           margin: screenWidth * .03,
@@ -134,14 +139,19 @@ export default class Directory extends Component {
     let vids = dataArray.videos.map((vid, index) => {
       return (
         <TouchableWithoutFeedback key={index} onPress={() => {
-          this.props.navigation.navigate('TagEditor')
+          this.props.navigation.navigate('TagEditor',{vidId:vid.id})
         }}>
-          <Image source={{uri: vid.image}} key={index} style={{
-            margin: screenWidth * .03,
-            width: screenWidth * .39,
-            height: 100,
-            backgroundColor: '#9ab7ff',
-            borderRadius: 5
+          <Image
+            source={{uri: `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos-thumbs/${vid.id}`}}
+            key={index}
+            defaultSource={IconFilm}
+            style={{
+              margin: screenWidth * .03,
+              width: screenWidth * .39,
+              height: 100,
+              backgroundColor: 'white',
+              borderRadius: 5,
+              resizeMode:'cover'
           }}>
 
           </Image>
@@ -213,65 +223,106 @@ export default class Directory extends Component {
 
   uploadVideo() {
 
-    const {source, videoTitle, videoUri} = this.state;
+    const {source, videoTitle, videoUri, userData} = this.state;
 
     const sourceName = source.fileName.split(".");
+    const fileType = sourceName[sourceName.length - 1];
     let type = "";
 
-    switch(sourceName[sourceName.length - 1]){
-      case 'MOV': type = 'video/quicktime';
-      case 'mp4': type = 'video/mp4';
-      case 'wmv': type = 'video/x-ms-wmv';
-      case 'ts': type = 'video/MP2T';
+    switch (fileType) {
+      case 'MOV':
+        type = 'video/quicktime';
+      case 'mp4':
+        type = 'video/mp4';
+      case 'wmv':
+        type = 'video/x-ms-wmv';
+      case 'ts':
+        type = 'video/MP2T';
     }
 
-    const file = {
-      uri: source.uri,
-      name: videoTitle,
-      type
-    };
+    axios({
+      url: 'http://13.229.84.38/api/v1/request-upload', headers: {
+        'x-auth-token': userData.authToken,
+        'x-user-id': userData.userId,
+      }, method: 'post'
+    }).then((response) => {
+      console.log(userData, response);
+      this.setState({modalVisibleVideo: false, loadingModal: true});
 
-    const thumb = {
-      uri: videoUri,
-      name: videoTitle,
-      type:'image/png'
-    };
+      const {data} = response;
 
-    const optionsThumb = {
-      keyPrefix: "videos-thumbs/",
-      bucket: "3p-videos",
-      region: "ap-southeast-1",
-      accessKey: "",
-      secretKey: "",
-      successActionStatus: 201
-    };
+      const optionsThumb = {
+        keyPrefix: "videos-thumbs/",
+        bucket: data.bucket,
+        region: data.region,
+        accessKey: data.AccessKeyId,
+        secretKey: data.SecretAccessKey,
+        successActionStatus: 201,
+        sessionToken: data.SessionToken
+      };
 
-    const options = {
-      keyPrefix: "videos/",
-      bucket: "3p-videos",
-      region: "ap-southeast-1",
-      accessKey: "",
-      secretKey: "",
-      successActionStatus: 201
-    };
+      const options = {
+        keyPrefix: "videos/",
+        bucket: data.bucket,
+        region: data.region,
+        accessKey: data.AccessKeyId,
+        secretKey: data.SecretAccessKey,
+        successActionStatus: 201,
+        sessionToken: data.SessionToken
+      };
 
-    this.setState({modalVisibleVideo: false, loadingModal: true})
+      axios({
+        url: `${this.state.url}/api/v1/videos/add`,
+        data: {
+          title: videoTitle,
+          projectId:this.state.activeAddProject,
+          url:''
+        },
+        // headers: {
+        //   'x-auth-token': userData.authToken,
+        //   'x-user-id': userData.userId,
+        // },
+        method: 'post'
+      }).then((response) => {
+        console.log(response);
+        if(response.data === false){
+          alert('error')
+        }
 
-    RNS3.put(file, options)
-      .progress((e) => {
-        let progress = e.loaded / e.total;
-        if(progress === 1){
-          RNS3.put(thumb, optionsThumb)
-            .progress((e) => {
+        const file = {
+          uri: source.uri,
+          name: `${response.data}.${fileType}`,
+          type
+        };
+
+        const thumb = {
+          uri: videoUri,
+          name: response.data,
+          type: 'image/png'
+        };
+
+
+        RNS3.put(file, options)
+          .then((e) => {
+            console.log(e)
+
+          }).progress((e) => {
+          let progress = e.loaded / e.total;
+          if (progress === 1) {
+            RNS3.put(thumb, optionsThumb)
+              .progress((e) => {
               let progress = e.loaded / e.total;
-              if(progress === 1){
-                this.setState({loadingModal: false})
+
+              if (progress === 1) {
+                this.setState({loadingModal: false});
+                this._retrieveData();
               }
             });
-        }
+          }
+        });
       });
 
-
+    })
   }
 
   _retrieveData = async () => {
@@ -281,7 +332,7 @@ export default class Directory extends Component {
         // We have data!!
         const data = JSON.parse(value);
         this.setState({userData: data});
-        axios.get('http://13.251.103.54/api/v1/projects',
+        axios.get('http://13.229.84.38/api/v1/projects',
           {
             headers: {
               'x-auth-token': data.authToken,
@@ -375,7 +426,16 @@ export default class Directory extends Component {
           visible={this.state.modalVisibleVideo}
         >
           <View style={styles.modalContainer}>
+
             <View style={styles.modalStyle}>
+              <TouchableWithoutFeedback onPress={() => {
+                this.setState({modalVisibleVideo: false})
+              }}>
+                <View>
+                  <Icon style={{alignSelf: 'flex-end', marginRight: 10}} color={'white'} name={'times'} size={30}/>
+                </View>
+              </TouchableWithoutFeedback>
+
               <Text style={styles.addTitle}>ADD VIDEO</Text>
               <TextInput
                 style={styles.addVideoInput}
@@ -411,8 +471,8 @@ export default class Directory extends Component {
           animationType="slide"
           transparent={true}
           visible={this.state.loadingModal}>
-          <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'rgba(0,0,0,.7)'}}>
-            <Text style={{color:'white', fontSize:40, marginBottom:20}}>Uploading Video Please Wait...</Text>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
+            <Text style={{color: 'white', fontSize: 40, marginBottom: 20}}>Uploading Video Please Wait...</Text>
           </View>
         </Modal>
       </ImageBackground>

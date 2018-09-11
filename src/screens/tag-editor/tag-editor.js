@@ -40,6 +40,7 @@ import IconF from 'react-native-vector-icons/FontAwesome';
 export default class VideoPlayer extends Component {
   constructor(props) {
     super(props);
+
     Orientation.lockToLandscapeRight();
     this.onLoad = this.onLoad.bind(this);
     this.onProgress = this.onProgress.bind(this);
@@ -47,6 +48,7 @@ export default class VideoPlayer extends Component {
     this.videoPlayer = React.createRef();
     this.state = {
       rate: 1,
+      vidId:this.props.navigation.getParam('vidId', '0'),
       volume: 1,
       muted: false,
       resizeMode: 'contain',
@@ -468,6 +470,10 @@ export default class VideoPlayer extends Component {
     const flexCompleted = this.getCurrentTimePercentage() * 100;
     const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
     let {tagActive} = this.state;
+
+    const vidUrl = `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos/${this.props.navigation.getParam('vidId', '0')}.MOV`;
+
+    console.log(vidUrl);
     return (
       <Container>
 
@@ -579,7 +585,7 @@ export default class VideoPlayer extends Component {
                                         onLayout={(e) => this.measureView(e)}>
                   <Video
                     ref={ref => (this.videoPlayer = ref)}
-                    source={{uri: "https://s3-ap-southeast-1.amazonaws.com/3p.touch/videos/bunnys.mp4"}}
+                    source={{uri: vidUrl}}
                     style={styles.fullScreen}
                     rate={this.state.rate}
                     paused={this.state.paused}
