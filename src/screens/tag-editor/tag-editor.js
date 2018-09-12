@@ -398,7 +398,7 @@ export default class VideoPlayer extends Component {
 
     let vidId = this.props.navigation.getParam('vidId', '0');
     //Patch video ID
-    Axios.patch(`http://192.168.0.17:3000/api/v1/videos/${vidId}`,{
+    Axios.patch(`http://13.229.84.38/api/v1/videos/${vidId}`,{
       tags: tags
     }).then((res) => {
       console.log(res);
