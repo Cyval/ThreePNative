@@ -17,7 +17,7 @@ import {
   Image,
   Modal,
   Animated,
-  Easing
+  Easing, AsyncStorage
 } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content, Accordion } from 'native-base';
 import Video from 'react-native-video';
@@ -36,6 +36,8 @@ import crosshair from '../../assets/crosshair.png';
 import chevron from '../../assets/chevron-down.png';
 import NavBar from '../../components/Navbar/Navbar';
 import IconF from 'react-native-vector-icons/FontAwesome';
+import Axios from 'axios';
+
 
 export default class VideoPlayer extends Component {
   constructor(props) {
@@ -392,7 +394,18 @@ export default class VideoPlayer extends Component {
       sourceUrl: ""
     };
     tags.push(tag);
-    this.setState({modalVisible: false, tagsModalVisible: true});
+    this.setState({modalVisible: false, tagsModalVisible: true, tags});
+
+    let vidId = this.props.navigation.getParam('vidId', '0');
+    //Patch video ID
+    Axios.patch(`http://192.168.0.17:3000/api/v1/videos/${vidId}`,{
+      tags: tags
+    }).then((res) => {
+      console.log(res);
+    }).catch((error) => {
+      console.log(error);
+    });
+
   }
 
   handleEditTag(type) {
