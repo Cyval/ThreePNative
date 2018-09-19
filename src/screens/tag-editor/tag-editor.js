@@ -484,7 +484,7 @@ export default class VideoPlayer extends Component {
     const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
     let {tagActive} = this.state;
 
-    const vidUrl = `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos/${this.props.navigation.getParam('vidId', '0')}.MOV`;
+    const vidUrl = `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos/${this.props.navigation.getParam('vidId', '0')}.${this.props.navigation.getParam('fileType', 'MOV')}`;
 
     console.log(vidUrl);
     return (
