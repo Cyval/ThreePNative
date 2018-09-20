@@ -62,8 +62,8 @@ export default class VideoPlayer extends Component {
       ignoreSilentSwitch: null,
       isBuffering: false,
       skipButton: [true, false, false, false, false],
-      orientation: 'PORTRAIT',
-      playerSize: {},
+      orientation: 'LANDSCAPE',
+      playerSize: {width: 0, height: 0},
       videoHeight: Dimensions.get('window').width / (16 / 9),
       coords: {x: 0, y: 0},
       percentage: {x: 0, y: 0},
@@ -72,13 +72,15 @@ export default class VideoPlayer extends Component {
       tagActive: false,
       prevTagActive: true,
       tagSeconds: 4,
-      tags: [] // Fetch array from tags data when available
+      tags: [], // Fetch array from tags data when available
+      videoDimensions: {width: 0, height: 0}
      }
   }
 
   onLoad(data) {
-    console.log('On load fired!');
-    this.setState({duration: data.duration});
+    Orientation.getOrientation((err, orientation) => {
+      this.setState({duration: data.duration, videoDimensions: data.naturalSize, orientation});
+    });
   }
 
   onProgress(data) {
@@ -224,6 +226,7 @@ export default class VideoPlayer extends Component {
 
   measureView(e) {
     let {width, height } = e.nativeEvent.layout;
+    console.log(width, height)
     this.setState({
       playerSize: {width, height}
     })
@@ -378,6 +381,47 @@ export default class VideoPlayer extends Component {
     this.setState({
       tagsModalVisible: !this.state.tagsModalVisible
     })
+  }
+
+  calculateDimensions() {
+    let {playerSize, orientation, videoDimensions } = this.state;
+    let {width, height} = videoDimensions;
+    let playerWidth =  playerSize.width;
+    let playerHeight =  playerSize.height;
+
+    let widthRatio = width / height;
+    let heightRatio = height / width;
+
+    let overlayWidth = 0;
+    let overlayHeight = 0;
+
+    // For 1:1 Video Ratio
+    if (widthRatio === 1 && orientation === 'LANDSCAPE') {
+      overlayWidth = playerHeight;
+      overlayHeight = playerHeight;
+    } else if (widthRatio === 1 && orientation === 'PORTRAIT') {
+      overlayWidth = playerWidth;
+      overlayHeight = playerWidth;
+    } else if (widthRatio > heightRatio) {
+      //Video is landscape
+      overlayWidth = playerHeight * widthRatio;
+      overlayHeight = playerHeight;
+    } else if (heightRatio > widthRatio) {
+      //Video is portrait
+      overlayWidth = playerWidth;
+      overlayHeight = playerWidth * heightRatio;
+    }
+
+    console.log('video', width, height);
+    console.log('video ratio', widthRatio, heightRatio);
+    console.log('player', playerWidth, playerHeight);
+    console.log('overlay', overlayWidth, overlayHeight);
+
+    return {
+      width: overlayWidth,
+      height: overlayHeight
+    }
+
   }
 
   handleTagTypeButton(type) {
@@ -593,9 +637,23 @@ export default class VideoPlayer extends Component {
 
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
           <View style={{flex: 1}}>
+
+            <View style={[
+              {
+                backgroundColor: 'rgba(255,0,0,0.5)',
+                position: 'absolute',
+                alignSelf: 'center',
+                zIndex: 1
+              },
+              this.calculateDimensions()
+            ]}
+            onPress={(evt) => {
+              this.handlePress(evt)
+            }}
+            />
+
             <View style={{flex:1,height:Dimensions.get('window').width}}>
-              <TouchableWithoutFeedback style={ styles.videoContainerFullScreen} onPress={(evt) => {this.handlePress(evt)}}
-                                        onLayout={(e) => this.measureView(e)}>
+              <TouchableWithoutFeedback style={styles.videoContainerFullScreen} onLayout={(e) => this.measureView(e)}>
                   <Video
                     ref={ref => (this.videoPlayer = ref)}
                     source={{uri: vidUrl}}
@@ -611,6 +669,7 @@ export default class VideoPlayer extends Component {
                     onProgress={this.onProgress}
                     onEnd={() => { }}
                     repeat={true}
+                    onLayout={(e) => { console.log(e.nativeEvent.layout)}}
                   />
               </TouchableWithoutFeedback>
 
@@ -897,15 +956,15 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     flex: 1,
-    height: Dimensions.get('window').width / (16 / 9)
+    height: Dimensions.get('window').width / (16 / 9),
+    backgroundColor: 'rgba(255,0,0,0.5)',
   },
   videoContainerFullScreen: {
     position: 'absolute',
     zIndex: 50,
     height: '90%',
-    width: '100%',
     top:0,
-    backgroundColor:'white'
+    backgroundColor: 'rgba(255,0,0,0.5)',
   },
   previewScreen: {
     flex: 1,
