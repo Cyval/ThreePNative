@@ -13,8 +13,10 @@ import {
   Modal,
   TextInput,
   Button,
-  AsyncStorage
+  AsyncStorage,
 } from 'react-native';
+
+import Video from 'react-native-video';
 
 import RNThumbnail from 'react-native-thumbnail';
 
@@ -69,7 +71,8 @@ export default class Directory extends Component {
       loadingModal: false,
       progress: 0,
       url: 'http://13.229.84.38',
-      activeAddProject:''
+      activeAddProject:'',
+      orientation:''
     }
 
   }
@@ -197,9 +200,17 @@ export default class Directory extends Component {
 
 
       RNThumbnail.get(response.uri).then((result) => {
-        console.log(result.path);
+        console.log(result);
 
-        this.setState({videoUri: result.path});
+        let orientation = ''
+
+        if(result.height > result.width){
+          orientation = 'portrait';
+        }else{
+          orientation = 'landscape';
+        }
+
+        this.setState({videoUri: result.path, orientation});
       });
 
       if (response.didCancel) {
@@ -276,7 +287,8 @@ export default class Directory extends Component {
         data: {
           title: videoTitle,
           projectId:this.state.activeAddProject,
-          fileType:fileType
+          fileType:fileType,
+          orientation: this.state.orientation
         },
         // headers: {
         //   'x-auth-token': userData.authToken,
