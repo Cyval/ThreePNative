@@ -69,7 +69,7 @@ export default class VideoPlayer extends Component {
       ignoreSilentSwitch: null,
       isBuffering: false,
       skipButton: [true, false, false, false, false],
-      orientation: 'LANDSCAPE',
+      orientation,
       playerSize: {width: 0, height: 0},
       videoHeight: Dimensions.get('window').width / (16 / 9),
       coords: {x: 0, y: 0},
@@ -80,13 +80,16 @@ export default class VideoPlayer extends Component {
       prevTagActive: true,
       tagSeconds: 4,
       tags: [], // Fetch array from tags data when available
-      videoDimensions: {width: 0, height: 0}
+      videoDimensions: {width: 0, height: 0},
+      videoOrientation: orientation,
      }
   }
 
   onLoad(data) {
+    console.log(data)
     Orientation.getOrientation((err, orientation) => {
-      this.setState({duration: data.duration, videoDimensions: data.naturalSize, orientation});
+      console.log(orientation)
+      this.setState({duration: data.duration, videoDimensions: data.naturalSize, videoOrientation: orientation});
     });
   }
 
@@ -189,6 +192,7 @@ export default class VideoPlayer extends Component {
   }
 
   handlePress(e){
+    console.log("handlePress")
     if (this.state.paused && this.state.tagActive) {
       // Handle tagging
       let {locationX, locationY} = e.nativeEvent;
@@ -225,7 +229,7 @@ export default class VideoPlayer extends Component {
     })
   }
 
-  handleCrosshair(e) {
+  tagOptionsModal(e) {
     this.setState({
       modalVisible: true
     })
@@ -391,8 +395,12 @@ export default class VideoPlayer extends Component {
   }
 
   calculateDimensions() {
-    let {playerSize, orientation, videoDimensions } = this.state;
-    let {width, height} = videoDimensions;
+    let {playerSize, orientation, videoDimensions, videoOrientation } = this.state;
+
+    // Workaround for video where width and height values are saved by camera but determined orientation by gyro
+    let width = videoOrientation === "landscape" ? videoDimensions.width : videoDimensions.height;
+    let height = videoOrientation === "landscape" ? videoDimensions.height : videoDimensions.width;
+
     let playerWidth =  playerSize.width;
     let playerHeight =  playerSize.height;
 
@@ -403,10 +411,10 @@ export default class VideoPlayer extends Component {
     let overlayHeight = 0;
 
     // For 1:1 Video Ratio
-    if (widthRatio === 1 && orientation === 'LANDSCAPE') {
+    if (widthRatio === 1 && orientation === 'landscape') {
       overlayWidth = playerHeight;
       overlayHeight = playerHeight;
-    } else if (widthRatio === 1 && orientation === 'PORTRAIT') {
+    } else if (widthRatio === 1 && orientation === 'portrait') {
       overlayWidth = playerWidth;
       overlayHeight = playerWidth;
     } else if (widthRatio > heightRatio) {
@@ -541,6 +549,7 @@ export default class VideoPlayer extends Component {
     return (
       <Container>
 
+        {/*MODAL FOR ADDING TAGS*/}
         <Modal
           animationType="slide"
           transparent={true}
@@ -608,6 +617,7 @@ export default class VideoPlayer extends Component {
           </View>
         </Modal>
 
+        {/*MODAL FOR TAG DIRECTORY*/}
         <Modal
           animationType="slide"
           transparent={true}
@@ -618,6 +628,7 @@ export default class VideoPlayer extends Component {
           }}>
           <View style={tagDirectory.modalStyle}>
 
+            {/*CLOSE TAG MODAL*/}
             <TouchableWithoutFeedback onPress={()=>this.setState({tagsModalVisible:false})}>
               <IconF style={{
                 right: 15}} name={'times'} color={'#8EA2C2'} size={25}/>
@@ -642,50 +653,63 @@ export default class VideoPlayer extends Component {
           </View>
         </Modal>
 
+        {/*MAIN LAYOUT*/}
         <ImageBackground source={galaxyImage}  style={{width: '100%', height: '100%'}}>
           <View style={{flex: 1}}>
+            <View style={{flex:1, height:Dimensions.get('window').width}}>
 
-            <View style={[
-              {
-                backgroundColor: 'rgba(255,0,0,0.5)',
-                position: 'absolute',
-                alignSelf: 'center',
-                zIndex: 1
-              },
-              this.calculateDimensions()
-            ]}
-            onPress={(evt) => {
-              this.handlePress(evt)
-            }}
-            />
-
-            <View style={{flex:1,height:Dimensions.get('window').width}}>
-              <TouchableWithoutFeedback style={styles.videoContainerFullScreen} onLayout={(e) => this.measureView(e)}>
-                  <Video
-                    ref={ref => (this.videoPlayer = ref)}
-                    source={{uri: vidUrl}}
-                    style={styles.fullScreen}
-                    rate={this.state.rate}
-                    paused={this.state.paused}
-                    volume={this.state.volume}
-                    muted={this.state.muted}
-                    ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-                    resizeMode={this.state.resizeMode}
-                    onLoad={this.onLoad}
-                    onBuffer={this.onBuffer}
-                    onProgress={this.onProgress}
-                    onEnd={() => { }}
-                    repeat={true}
-                    onLayout={(e) => { console.log(e.nativeEvent.layout)}}
-                  />
+              {/*CROSSHAIR ELEMENT*/}
+              <TouchableWithoutFeedback onPress={(e) => {this.tagOptionsModal(e)}} >
+                <Image style={this.crosshairStyle()} source={crosshair}/>
               </TouchableWithoutFeedback>
 
+              {/*OVERLAY TOUCHABLE FOR ADDING TAGS*/}
+              <TouchableWithoutFeedback onPress={this.handlePress.bind(this)}>
+                <View style={[
+                  {
+                    backgroundColor: 'rgba(255,0,0,0.5)',
+                    position: 'absolute',
+                    alignSelf: 'center',
+                    zIndex: 51
+                  },
+                  this.calculateDimensions()
+                ]}
+
+                />
+              </TouchableWithoutFeedback>
+
+                {/*TOUCHABLE FOR GETTING SIZE OF VIDEO*/}
+                <TouchableWithoutFeedback style={styles.videoContainerFullScreen} onLayout={(e) => this.measureView(e)}>
+                    <Video
+                      ref={ref => (this.videoPlayer = ref)}
+                      source={{uri: vidUrl}}
+                      style={styles.fullScreen}
+                      rate={this.state.rate}
+                      paused={this.state.paused}
+                      volume={this.state.volume}
+                      muted={this.state.muted}
+                      ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+                      resizeMode={this.state.resizeMode}
+                      onLoad={this.onLoad}
+                      onBuffer={this.onBuffer}
+                      onProgress={this.onProgress}
+                      onEnd={() => { }}
+                      repeat={true}
+                      onLayout={(e) => { console.log(e.nativeEvent.layout)}}
+                    />
+                </TouchableWithoutFeedback>
+
+              </View>
+
             </View>
+
+            {/*RIGHTSIDE CONTROLS CONTAINER*/}
             <View style={{position:'absolute', width:'100%',top:0, display:this.state.tagActive ? 'none' : 'flex'}}>
               <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
                 <Image style={this.tagStyle()} source={tagImage}/>
               </TouchableWithoutFeedback>
 
+              {/*CLOSE BUTTON*/}
               <TouchableWithoutFeedback onPress={(e) => {
                 this.props.navigation.navigate('Directory');
                 Orientation.lockToPortrait();
@@ -696,7 +720,8 @@ export default class VideoPlayer extends Component {
                   top: 36,}} name={'times'} color={'white'} size={25}/>
               </TouchableWithoutFeedback>
 
-              <TouchableWithoutFeedback onPress={(e) => {this.handleCrosshair(e)}} >
+              {/*TAG LIST DIRECTORY*/}
+              <TouchableWithoutFeedback onPress={(e) => {this.tagOptionsModal(e)}} >
                 <IconF style={{ position:'absolute',
                   right: 7,
                   padding: 4,
@@ -704,11 +729,8 @@ export default class VideoPlayer extends Component {
               </TouchableWithoutFeedback>
             </View>
 
-            {/*CROSSHAIR ELEMENT*/}
-            <TouchableWithoutFeedback onPress={(e) => {this.handleCrosshair(e)}} >
-              <Image style={this.crosshairStyle()} source={crosshair}/>
-            </TouchableWithoutFeedback>
 
+            {/*VIDEO SLIDER CONTROLS*/}
             <Animated.View style={[styles.controlsContainer, this.controlsStyle()]}>
               <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
                 <View style={styles.slidePuller}>
@@ -739,7 +761,6 @@ export default class VideoPlayer extends Component {
                 </View>
               </View>
             </Animated.View>
-          </View>
 
         </ImageBackground>
       </Container>
