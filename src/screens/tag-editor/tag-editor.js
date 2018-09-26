@@ -43,7 +43,14 @@ export default class VideoPlayer extends Component {
   constructor(props) {
     super(props);
 
-    Orientation.lockToLandscapeRight();
+    let orientation = props.navigation.getParam('orientation');
+
+    if (orientation === 'portrait') {
+      Orientation.lockToPortrait();
+    } else {
+      Orientation.lockToLandscapeRight();
+    }
+
     this.onLoad = this.onLoad.bind(this);
     this.onProgress = this.onProgress.bind(this);
     this.onBuffer = this.onBuffer.bind(this);

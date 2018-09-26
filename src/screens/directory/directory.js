@@ -142,7 +142,11 @@ export default class Directory extends Component {
     let vids = dataArray.videos.map((vid, index) => {
       return (
         <TouchableWithoutFeedback key={index} onPress={() => {
-          this.props.navigation.navigate('TagEditor',{vidId:vid.id,fileType:vid.fileType})
+          this.props.navigation.navigate('TagEditor', {
+            vidId: vid.id,
+            fileType: vid.fileType,
+            orientation: vid.orientation
+          })
         }}>
           <Image
             source={{uri: `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos-thumbs/${vid.id}`}}
