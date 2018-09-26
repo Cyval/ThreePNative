@@ -71,8 +71,9 @@ export default class Directory extends Component {
       loadingModal: false,
       progress: 0,
       url: 'http://13.229.84.38',
-      activeAddProject:'',
-      orientation:''
+      activeAddProject: '',
+      orientation: '',
+      confirmation: false
     }
 
   }
@@ -119,13 +120,23 @@ export default class Directory extends Component {
     );
   };
 
+
+  deleteVideo(id) {
+    axios.delete(`${this.state.url}/api/v1/videos/${id}`).then(response => {
+      if (response.data === true) {
+        this._retrieveData();
+        this.setState({confirmation: false})
+      }
+    })
+  }
+
   _renderContent = (dataArray) => {
 
     console.log(dataArray);
 
     const addCompo = (
       <TouchableWithoutFeedback key={'90a'} onPress={() => {
-        this.setState({modalVisibleVideo: true, activeAddProject:dataArray._id})
+        this.setState({modalVisibleVideo: true, activeAddProject: dataArray._id})
       }}>
         <View key={'90a'} style={{
           margin: screenWidth * .03,
@@ -148,20 +159,29 @@ export default class Directory extends Component {
             orientation: vid.orientation
           })
         }}>
-          <Image
-            source={{uri: `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos-thumbs/${vid.id}`}}
-            key={index}
-            defaultSource={IconFilm}
-            style={{
-              margin: screenWidth * .03,
-              width: screenWidth * .39,
-              height: 100,
-              backgroundColor: 'white',
-              borderRadius: 5,
-              resizeMode:'cover'
-          }}>
+          <View>
+            <Image
+              source={{uri: `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos-thumbs/${vid.id}`}}
+              key={index}
+              defaultSource={IconFilm}
+              style={{
+                margin: screenWidth * .03,
+                width: screenWidth * .39,
+                height: 100,
+                backgroundColor: 'white',
+                borderRadius: 5,
+                resizeMode: 'cover'
+              }}/>
+            <TouchableWithoutFeedback onPress={() => {
+              this.setState({confirmation: true, deleteId: vid.id})
+            }}>
+              <View style={styles.removeButton}>
 
-          </Image>
+                <Icon style={{alignSelf: 'center'}} color={'black'} name={'times'} size={20}/>
+
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
         </TouchableWithoutFeedback>
       )
     });
@@ -171,6 +191,18 @@ export default class Directory extends Component {
     return (
       <View>
         <View style={{alignItems: 'center', flexDirection: 'row', width: '90%', flexWrap: 'wrap', alignSelf: 'center'}}>
+
+          <View style={{justifyContent: 'center', width:'100%', marginBottom:30}}>
+            <TouchableWithoutFeedback onPress={() => {
+              alert('awa')
+            }}>
+              <View style={{flexDirection:'row',justifyContent: 'center', alignSelf: 'flex-end', color:'white', textAlign:'justify'}} >
+                <Text style={{ color:'white', textAlign:'justify'}}  >project settings </Text>
+                <Icon name={'cog'} size={20} color={'white'}/>
+              </View>
+
+            </TouchableWithoutFeedback>
+          </View>
           {vids}
         </View>
         <View style={{
@@ -208,9 +240,9 @@ export default class Directory extends Component {
 
         let orientation = ''
 
-        if(result.height > result.width){
+        if (result.height > result.width) {
           orientation = 'portrait';
-        }else{
+        } else {
           orientation = 'landscape';
         }
 
@@ -290,8 +322,8 @@ export default class Directory extends Component {
         url: `${this.state.url}/api/v1/videos/add`,
         data: {
           title: videoTitle,
-          projectId:this.state.activeAddProject,
-          fileType:fileType,
+          projectId: this.state.activeAddProject,
+          fileType: fileType,
           orientation: this.state.orientation
         },
         // headers: {
@@ -301,7 +333,7 @@ export default class Directory extends Component {
         method: 'post'
       }).then((response) => {
         console.log(response);
-        if(response.data === false){
+        if (response.data === false) {
           alert('error')
         }
 
@@ -327,13 +359,13 @@ export default class Directory extends Component {
           if (progress === 1) {
             RNS3.put(thumb, optionsThumb)
               .progress((e) => {
-              let progress = e.loaded / e.total;
+                let progress = e.loaded / e.total;
 
-              if (progress === 1) {
-                this.setState({loadingModal: false});
-                this._retrieveData();
-              }
-            });
+                if (progress === 1) {
+                  this.setState({loadingModal: false});
+                  this._retrieveData();
+                }
+              });
           }
         });
       });
@@ -491,6 +523,41 @@ export default class Directory extends Component {
             <Text style={{color: 'white', fontSize: 40, marginBottom: 20}}>Uploading Video Please Wait...</Text>
           </View>
         </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.confirmation}>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
+            <View style={{
+              justifyContent: 'center',
+              backgroundColor: 'white',
+              height: '30%',
+              width: '70%',
+              borderRadius: 10,
+              padding: 20
+            }}>
+              <Text style={{fontSize: 20, fontWeight: 'bold', fontFamily: 'HelveticaNeue', alignSelf: 'center'}}>Delete
+                Video?</Text>
+              <Button
+                onPress={() => {
+                  this.deleteVideo(this.state.deleteId)
+                }}
+                title="DELETE"
+                color="#051c40"
+                style={{backgroundColor: 'red'}}
+              />
+              <Button
+                onPress={() => {
+                  this.setState({confirmation: false})
+                }}
+                title="CANCEL"
+                color="#051c40"
+                style={{backgroundColor: 'red'}}
+              />
+            </View>
+          </View>
+        </Modal>
       </ImageBackground>
     )
   }
@@ -572,6 +639,15 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  removeButton: {
+    backgroundColor: 'white',
+    width: 30,
+    height: 30,
+    position: 'absolute',
+    right: 1,
+    borderRadius: 30 / 2,
+    justifyContent: 'center'
   }
 
 })
