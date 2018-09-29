@@ -667,7 +667,7 @@ export default class VideoPlayer extends Component {
               <TouchableWithoutFeedback onPress={this.handlePress.bind(this)}>
                 <View style={[
                   {
-                    backgroundColor: 'rgba(255,0,0,0.5)',
+                    backgroundColor: 'rgba(255,0,0,0)',
                     position: 'absolute',
                     alignSelf: 'center',
                     zIndex: 51
