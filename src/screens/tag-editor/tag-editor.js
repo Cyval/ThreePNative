@@ -217,7 +217,7 @@ export default class VideoPlayer extends Component {
 
       //TODO: Add tag marker in coordinate position, show modal for tag entry
     } else {
-      this.setState({paused: !this.state.paused})
+      // this.setState({paused: !this.state.paused})
     }
   }
 
@@ -225,7 +225,7 @@ export default class VideoPlayer extends Component {
     this.setState({
       tagActive: !this.state.tagActive,
       prevTagActive: !this.state.prevTagActive,
-      paused: !this.state.paused
+      // paused: !this.state.paused
     })
   }
 
