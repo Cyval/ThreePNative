@@ -115,7 +115,7 @@ export default class VideoPlayer extends Component {
 
     if (paused === false) {
       this.setState({
-        paused: false
+        // paused: false
       })
     }
   }
@@ -152,7 +152,7 @@ export default class VideoPlayer extends Component {
 
     if (paused === false) {
       this.setState({
-        paused: false,
+        // paused: false,
         skipButton: skipButton
       })
     } else {
