@@ -196,7 +196,7 @@ export default class VideoPlayer extends Component {
     if (this.state.paused && this.state.tagActive) {
       // Handle tagging
       let {locationX, locationY} = e.nativeEvent;
-      let {width, height} = this.state.playerSize;
+      let {width, height} = this.calculateDimensions();
 
       let coords = {
         x: locationX,
@@ -359,27 +359,41 @@ export default class VideoPlayer extends Component {
   }
 
   modalStyle() {
-    if (this.state.percentage.x > 50) {
+    if (this.state.orientation === 'portrait') {
       return {
-        height: '80%',
-        width: '45%',
+        height: '50%',
+        width: '80%',
         backgroundColor: 'rgba(225,225,225,0.6)',
         borderRadius: 10,
-        marginLeft: '2.5%',
+        // marginLeft: '2.5%',
+        alignSelf: 'center',
         justifyContent: 'center',
-        marginTop: '5%'
+        marginTop: '25%'
       }
     } else {
-      return {
-        height: '80%',
-        width: '45%',
-        backgroundColor: 'rgba(225,225,225,0.6)',
-        borderRadius: 10,
-        marginLeft: '52.5%',
-        justifyContent: 'center',
-        marginTop: '5%'
+      if (this.state.percentage.x > 50) {
+        return {
+          height: '80%',
+          width: '45%',
+          backgroundColor: 'rgba(225,225,225,0.6)',
+          borderRadius: 10,
+          marginLeft: '2.5%',
+          justifyContent: 'center',
+          marginTop: '5%'
+        }
+      } else {
+        return {
+          height: '80%',
+          width: '45%',
+          backgroundColor: 'rgba(225,225,225,0.6)',
+          borderRadius: 10,
+          marginLeft: '52.5%',
+          justifyContent: 'center',
+          marginTop: '5%'
+        }
       }
     }
+
   }
 
   setTagSeconds(value) {
@@ -411,7 +425,7 @@ export default class VideoPlayer extends Component {
     let overlayHeight = 0;
 
     // For 1:1 Video Ratio
-    if (widthRatio === 1 && orientation === 'landscape') {
+    if (widthRatio === 1 && (orientation === 'landscape' || orientation === undefined)) {
       overlayWidth = playerHeight;
       overlayHeight = playerHeight;
     } else if (widthRatio === 1 && orientation === 'portrait') {
@@ -658,10 +672,7 @@ export default class VideoPlayer extends Component {
           <View style={{flex: 1}}>
             <View style={{flex:1, height:Dimensions.get('window').width}}>
 
-              {/*CROSSHAIR ELEMENT*/}
-              <TouchableWithoutFeedback onPress={(e) => {this.tagOptionsModal(e)}} >
-                <Image style={this.crosshairStyle()} source={crosshair}/>
-              </TouchableWithoutFeedback>
+
 
               {/*OVERLAY TOUCHABLE FOR ADDING TAGS*/}
               <TouchableWithoutFeedback onPress={this.handlePress.bind(this)}>
@@ -674,8 +685,12 @@ export default class VideoPlayer extends Component {
                   },
                   this.calculateDimensions()
                 ]}
-
-                />
+                >
+                  {/*CROSSHAIR ELEMENT*/}
+                  <TouchableWithoutFeedback onPress={(e) => {this.tagOptionsModal(e)}} >
+                    <Image style={this.crosshairStyle()} source={crosshair}/>
+                  </TouchableWithoutFeedback>
+                </View>
               </TouchableWithoutFeedback>
 
                 {/*TOUCHABLE FOR GETTING SIZE OF VIDEO*/}
