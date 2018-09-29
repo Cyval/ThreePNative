@@ -985,14 +985,14 @@ const styles = StyleSheet.create({
   videoContainer: {
     flex: 1,
     height: Dimensions.get('window').width / (16 / 9),
-    backgroundColor: 'rgba(255,0,0,0.5)',
+    backgroundColor: 'rgba(255,0,0,0)',
   },
   videoContainerFullScreen: {
     position: 'absolute',
     zIndex: 50,
     height: '90%',
     top:0,
-    backgroundColor: 'rgba(255,0,0,0.5)',
+    backgroundColor: 'rgba(255,0,0,0)',
   },
   previewScreen: {
     flex: 1,
