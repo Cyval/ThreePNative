@@ -1,11 +1,7 @@
 import {
-  AlertIOS,
-  AppRegistry,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-  StatusBar,
   ImageBackground,
   Image,
   TouchableWithoutFeedback,
@@ -16,26 +12,17 @@ import {
   AsyncStorage,
 } from 'react-native';
 
-import Video from 'react-native-video';
-
+import AwesomeAlert from 'react-native-awesome-alerts';
 import RNThumbnail from 'react-native-thumbnail';
 
-import Orientation from 'react-native-orientation';
 
 import {Component} from "react";
 import React from "react";
 import galaxyImage from '../../assets/galaxy.jpg';
-import {Header, Container, Left, Right, Title, Body} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NavBar from '../../components/Navbar/Navbar';
 import addSub from '../../assets/add-sub.png';
 import IconFilm from '../../assets/iconfilm.png';
-import List from '../../components/directory/list';
-
-import sample from '../../assets/sample.png';
-import sample1 from '../../assets/sample1.png';
-import sample2 from '../../assets/sample2.png';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
 import {Accordion} from 'native-base';
 import ImagePicker from 'react-native-image-picker';
@@ -71,15 +58,27 @@ export default class Directory extends Component {
       loadingModal: false,
       progress: 0,
       url: 'http://13.229.84.38',
-      activeAddProject: '',
+      activeProject: '',
       orientation: '',
-      confirmation: false
+      confirmation: false,
+      projectModal: false,
+      deleteProjectConfirmation:false
     }
 
   }
 
   componentDidMount() {
     this._retrieveData();
+  }
+
+
+  deleteProject(){
+    axios.delete(`${this.state.url}/api/v1/projects/${this.state.activeProject}`).then(response => {
+      if (response.data === true) {
+        this._retrieveData();
+        this.setState({projectModal: false})
+      }
+    })
   }
 
 
@@ -96,8 +95,6 @@ export default class Directory extends Component {
       userId: this.state.userData.userId,
       projectName: this.state.projectTitle
     }).then(response => {
-      console.log(response)
-
       if (response.data === true) {
         this._retrieveData();
         this.setState({modalVisible: false})
@@ -105,7 +102,7 @@ export default class Directory extends Component {
     })
   }
 
-  _renderHeader = (dataArray, expanded) => {
+  _renderHeader = (dataArray) => {
     return (
       <View style={{flexDirection: 'row', width: '95%', alignSelf: 'center'}}>
         <View style={{flex: 1, justifyContent: 'center',}}>
@@ -132,11 +129,9 @@ export default class Directory extends Component {
 
   _renderContent = (dataArray) => {
 
-    console.log(dataArray);
-
     const addCompo = (
       <TouchableWithoutFeedback key={'90a'} onPress={() => {
-        this.setState({modalVisibleVideo: true, activeAddProject: dataArray._id})
+        this.setState({modalVisibleVideo: true, activeProject: dataArray._id})
       }}>
         <View key={'90a'} style={{
           margin: screenWidth * .03,
@@ -194,10 +189,10 @@ export default class Directory extends Component {
 
           <View style={{justifyContent: 'center', width:'100%', marginBottom:30}}>
             <TouchableWithoutFeedback onPress={() => {
-              alert('awa')
+              this.setState({projectModal:true, activeProject: dataArray._id, activeProjectName: dataArray.projectName});
             }}>
               <View style={{flexDirection:'row',justifyContent: 'center', alignSelf: 'flex-end', color:'white', textAlign:'justify'}} >
-                <Text style={{ color:'white', textAlign:'justify'}}  >project settings </Text>
+                <Text style={{ color:'white', textAlign:'justify', fontWeight:'bold'}}  > settings </Text>
                 <Icon name={'cog'} size={20} color={'white'}/>
               </View>
 
@@ -215,8 +210,9 @@ export default class Directory extends Component {
           width: '80%',
           padding: 10,
         }}>
-          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}> <Icon name={'globe'}
-                                                                                   size={30}/> GLOBAL</Text>
+          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>
+            <Icon name={'globe'} size={30}/> GLOBAL
+          </Text>
         </View>
       </View>
     );
@@ -322,14 +318,10 @@ export default class Directory extends Component {
         url: `${this.state.url}/api/v1/videos/add`,
         data: {
           title: videoTitle,
-          projectId: this.state.activeAddProject,
+          projectId: this.state.activeProject,
           fileType: fileType,
           orientation: this.state.orientation
         },
-        // headers: {
-        //   'x-auth-token': userData.authToken,
-        //   'x-user-id': userData.userId,
-        // },
         method: 'post'
       }).then((response) => {
         console.log(response);
@@ -467,7 +459,6 @@ export default class Directory extends Component {
           </View>
 
         </Modal>
-
         <Modal
           animationType="slide"
           transparent={true}
@@ -523,41 +514,82 @@ export default class Directory extends Component {
             <Text style={{color: 'white', fontSize: 40, marginBottom: 20}}>Uploading Video Please Wait...</Text>
           </View>
         </Modal>
-
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.confirmation}>
+          visible={this.state.projectModal}>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
             <View style={{
               justifyContent: 'center',
               backgroundColor: 'white',
-              height: '30%',
+              height: '50%',
               width: '70%',
               borderRadius: 10,
               padding: 20
             }}>
-              <Text style={{fontSize: 20, fontWeight: 'bold', fontFamily: 'HelveticaNeue', alignSelf: 'center'}}>Delete
-                Video?</Text>
+              <View>
+                <Text style={{textAlign:'center', fontSize:30}}>{this.state.activeProjectName}</Text>
+              </View>
+
               <Button
                 onPress={() => {
-                  this.deleteVideo(this.state.deleteId)
+                  this.setState({deleteProjectConfirmation:true, projectModal: false});
                 }}
-                title="DELETE"
+                title="Delete Project"
                 color="#051c40"
                 style={{backgroundColor: 'red'}}
               />
               <Button
                 onPress={() => {
-                  this.setState({confirmation: false})
+                  this.setState({projectModal: false})
                 }}
-                title="CANCEL"
+                title="EXIT"
                 color="#051c40"
                 style={{backgroundColor: 'red'}}
               />
             </View>
           </View>
         </Modal>
+        <AwesomeAlert
+          show={this.state.confirmation}
+          showProgress={false}
+          title="Delete Video"
+          message="are you sure you want to delete "
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          showConfirmButton={true}
+          cancelText="No, cancel"
+          confirmText="Yes, delete it"
+          confirmButtonColor="#DD6B55"
+          onCancelPressed={() => {
+            this.setState({confirmation:false});
+          }}
+          onConfirmPressed={() => {
+            this.deleteVideo(this.state.deleteId);
+            this.setState({confirmation:false});
+          }}
+        />
+        <AwesomeAlert
+          show={this.state.deleteProjectConfirmation}
+          showProgress={false}
+          title="Delete Project"
+          message="are you sure you want to delete the project all videos will be lost"
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          showConfirmButton={true}
+          cancelText="No, cancel"
+          confirmText="Yes, delete it"
+          confirmButtonColor="#DD6B55"
+          onCancelPressed={() => {
+            this.setState({ projectModal: true, deleteProjectConfirmation:false});
+          }}
+          onConfirmPressed={() => {
+            this.deleteProject();
+            this.setState({ deleteProjectConfirmation:false});
+          }}
+        />
       </ImageBackground>
     )
   }
@@ -649,6 +681,5 @@ const styles = StyleSheet.create({
     borderRadius: 30 / 2,
     justifyContent: 'center'
   }
-
-})
+});
 
