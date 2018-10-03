@@ -576,7 +576,7 @@ export default class VideoPlayer extends Component {
             <View style={{alignSelf: 'center'}}>
 
               <TouchableWithoutFeedback onPress={()=>this.setState({modalVisible:false})}>
-                <IconF style={{
+                <IconF style={{ position:'relative',zIndex:99999,
                   alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
               </TouchableWithoutFeedback>
 
@@ -719,7 +719,7 @@ export default class VideoPlayer extends Component {
             </View>
 
             {/*RIGHTSIDE CONTROLS CONTAINER*/}
-            <View style={{position:'absolute', width:'100%',top:0, display:this.state.tagActive ? 'none' : 'flex'}}>
+            <View style={{position:'absolute', width:'100%', top:0, display:this.state.tagActive ? 'none' : 'flex'}}>
               <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
                 <Image style={this.tagStyle()} source={tagImage}/>
               </TouchableWithoutFeedback>
@@ -1018,7 +1018,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height:'100%',
     width:'100%',
-    zIndex: 50,
+    zIndex: 0,
     top:0,
   },
   controlsContainer: {
@@ -1028,6 +1028,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     position:'absolute',
     width: "100%",
+    zIndex:99999,
     opacity: 1,
   },
   slidePuller: {
