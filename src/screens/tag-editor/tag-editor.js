@@ -113,8 +113,13 @@ export default class VideoPlayer extends Component {
     let paused = this.state.paused;
     this.videoPlayer.seek(value);
 
+    this.setState({
+      currentTime: value
+    })
+
     if (paused === false) {
       this.setState({
+        currentTime: value
         // paused: false
       })
     }
@@ -153,12 +158,14 @@ export default class VideoPlayer extends Component {
     if (paused === false) {
       this.setState({
         // paused: false,
-        skipButton: skipButton
+        skipButton: skipButton,
+        currentTime: skipValue
       })
     } else {
       this.setState({
         paused: true,
-        skipButton: skipButton
+        skipButton: skipButton,
+        currentTime: skipValue
       })
     }
   }
