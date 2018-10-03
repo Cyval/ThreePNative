@@ -419,7 +419,7 @@ export default class Directory extends Component {
           transparent={true}
           visible={this.state.modalVisible}
           onRequestClose={() => {
-            alert('Modal has been closed.');
+            return null
           }}>
           <View style={styles.modalContainer}>
             <View style={styles.modalStyle}>
@@ -463,7 +463,9 @@ export default class Directory extends Component {
           animationType="slide"
           transparent={true}
           visible={this.state.modalVisibleVideo}
-        >
+          onRequestClose={() => {
+            return null
+          }}>
           <View style={styles.modalContainer}>
 
             <View style={styles.modalStyle}>
@@ -509,7 +511,9 @@ export default class Directory extends Component {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.loadingModal}>
+          visible={this.state.loadingModal}   onRequestClose={() => {
+          return null
+        }}>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
             <Text style={{color: 'white', fontSize: 40, marginBottom: 20}}>Uploading Video Please Wait...</Text>
           </View>
@@ -517,7 +521,9 @@ export default class Directory extends Component {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.projectModal}>
+          visible={this.state.projectModal}   onRequestClose={() => {
+          return null
+        }}>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
             <View style={{
               justifyContent: 'center',

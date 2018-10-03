@@ -358,6 +358,14 @@ export default class VideoPlayer extends Component {
 
   }
 
+  overlayControlsStyle() {
+    if (this.state.tagActive) {
+      return {position:'relative', width:'100%', top: 0, display: 'none', height: 0}
+    } else {
+      return {position:'absolute', width:'100%', top: 0 }
+    }
+  }
+
   modalStyle() {
     if (this.state.orientation === 'portrait') {
       return {
@@ -560,6 +568,7 @@ export default class VideoPlayer extends Component {
     const vidUrl = `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos/${this.props.navigation.getParam('vidId', '0')}.${this.props.navigation.getParam('fileType', 'MOV')}`;
 
     console.log(vidUrl);
+    console.log("tagActive", tagActive);
     return (
       <Container>
 
@@ -645,7 +654,7 @@ export default class VideoPlayer extends Component {
             {/*CLOSE TAG MODAL*/}
             <TouchableWithoutFeedback onPress={()=>this.setState({tagsModalVisible:false})}>
               <IconF style={{
-                right: 15}} name={'times'} color={'#8EA2C2'} size={25}/>
+                right: -5, top: 5}} name={'times'} color={'#8EA2C2'} size={25}/>
             </TouchableWithoutFeedback>
 
             <View style={tagDirectory.header}>
@@ -719,7 +728,7 @@ export default class VideoPlayer extends Component {
             </View>
 
             {/*RIGHTSIDE CONTROLS CONTAINER*/}
-            <View style={{position:'absolute', width:'100%', top:0, display:this.state.tagActive ? 'none' : 'flex'}}>
+            <View style={this.overlayControlsStyle()}>
               <TouchableWithoutFeedback onPress={(e) => {this.handleTag(e)}} >
                 <Image style={this.tagStyle()} source={tagImage}/>
               </TouchableWithoutFeedback>
@@ -736,7 +745,7 @@ export default class VideoPlayer extends Component {
               </TouchableWithoutFeedback>
 
               {/*TAG LIST DIRECTORY*/}
-              <TouchableWithoutFeedback onPress={(e) => {this.tagOptionsModal(e)}} >
+              <TouchableWithoutFeedback onPress={(e) => {this.toggleTagsDirectoryModal(e)}} >
                 <IconF style={{ position:'absolute',
                   right: 7,
                   padding: 4,
