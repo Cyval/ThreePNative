@@ -13,6 +13,7 @@ import React, {Component} from 'react';
 //Screens
 import TagEditor from './src/screens/tag-editor/tag-editor';
 import Login from './src/screens/login/login';
+import Globals from './src/screens/globals/globals';
 import Directory from './src/screens/directory/directory';
 import Drawer from './src/screens/drawer/CustomDrawer';
 
@@ -37,6 +38,10 @@ const screens = {
   TagEditor: {
     screen: TagEditor,
     title: 'TagEditor',
+  },
+  Globals: {
+    screen: Globals,
+    title: 'Globals',
   },
 };
 

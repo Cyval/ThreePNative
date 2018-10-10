@@ -5,6 +5,7 @@ import {
   ImageBackground,
   Image,
   TouchableWithoutFeedback,
+  TouchableOpacity,
   Dimensions,
   Modal,
   TextInput,
@@ -200,6 +201,9 @@ export default class Directory extends Component {
           </View>
           {vids}
         </View>
+        <TouchableWithoutFeedback onPress={()=>{
+          this.props.navigation.navigate('Globals');
+        }}>
         <View style={{
           justifyContent: 'center',
           marginBottom: 20,
@@ -210,10 +214,11 @@ export default class Directory extends Component {
           width: '80%',
           padding: 10,
         }}>
-          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>
-            <Icon name={'globe'} size={30}/> GLOBAL
-          </Text>
+            <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>
+              <Icon name={'globe'} size={30}/> GLOBAL
+            </Text>
         </View>
+        </TouchableWithoutFeedback>
       </View>
     );
   }
