@@ -12,8 +12,9 @@ import {
   ScrollView,
 } from 'react-native';
 
+import {BarChart, Grid, YAxis, XAxis, LineChart} from 'react-native-svg-charts';
+
 import AwesomeAlert from 'react-native-awesome-alerts';
-import RNThumbnail from 'react-native-thumbnail';
 
 
 import {Component} from "react";
@@ -21,12 +22,6 @@ import React from "react";
 import galaxyImage from '../../assets/galaxy.jpg';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NavBar from '../../components/Navbar/Navbar';
-import addSub from '../../assets/add-sub.png';
-import IconFilm from '../../assets/iconfilm.png';
-
-import {Accordion} from 'native-base';
-import ImagePicker from 'react-native-image-picker';
-import {RNS3} from 'react-native-aws3';
 import axios from 'axios';
 
 const screenWidth = Dimensions.get('window').width;
@@ -57,82 +52,282 @@ export default class Directory extends Component {
 
   render() {
     const {props} = this;
+    const fill = 'rgb(134, 65, 244)';
+    const data = [100, 124, 150, 86, 35, 10];
+
     return (
       <ImageBackground source={galaxyImage} style={{width: '100%', flex: 1}}>
         <NavBar title={"Globals"} {...props}/>
-        <View style={{flexDirection:'row',   justifyContent: 'space-between', marginTop:20, width:'90%', alignSelf:'center'}}>
-          <Text style={{color:'#8EA2C2', fontSize:15 ,fontWeight:'bold'}}>Jun 4 - Aug 10</Text>
-          <Icon style={{color:'#8EA2C2'}} name={'calendar'} size={20}/>
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginTop: 20,
+          width: '90%',
+          alignSelf: 'center'
+        }}>
+          <Text style={{color: '#8EA2C2', fontSize: 15, fontWeight: 'bold'}}>Jun 4 - Aug 10</Text>
+          <Icon style={{color: '#8EA2C2'}} name={'calendar'} size={20}/>
         </View>
-        <View style={{flexDirection:'row',  width:'90%', justifyContent: 'space-between', alignSelf:'center', marginTop:20}}>
-          <Icon style={{color:'#8EA2C2'}} name={'chevron-left'} size={30}/>
-          <Text style={{color:'#8EA2C2', fontSize:25 ,fontWeight:'bold'}}>Sample Video</Text>
-          <Icon style={{color:'#8EA2C2'}} name={'chevron-right'} size={30}/>
+        <View style={{
+          flexDirection: 'row',
+          width: '90%',
+          justifyContent: 'space-between',
+          alignSelf: 'center',
+          marginTop: 20
+        }}>
+          <Icon style={{color: '#8EA2C2'}} name={'chevron-left'} size={30}/>
+          <Text style={{color: '#8EA2C2', fontSize: 25, fontWeight: 'bold'}}>Sample Video</Text>
+          <Icon style={{color: '#8EA2C2'}} name={'chevron-right'} size={30}/>
         </View>
 
-        <View style={{backgroundColor:'#fff', width:'100%', height:200, marginTop:20}}>
-
+        <View style={{backgroundColor: '#fff', height: 200, flexDirection: 'row', flex: 1, marginTop: 20}}>
+          <YAxis
+            data={ data }
+            contentInset={ { top: 20, bottom: 20} }
+            svg={{
+              fill: 'grey',
+              fontSize: 10,
+            }}
+            numberOfTicks={ 6 }
+            formatLabel={ value => `${value}` }
+          />
+          <BarChart
+            style={{ flex: 1, marginLeft: 20 }}
+            spacingInner={0.3}
+            data={ data }
+            svg={{ fill }}
+            contentInset={{ top: 20, bottom: 20 }}
+          >
+            <Grid/>
+          </BarChart>
         </View>
 
-        <View style={{alignSelf:'center', width:'90%', justifyContent: 'space-between', marginTop:20, flexDirection:'row'}}>
-          <Text style={{ padding:5,backgroundColor:'#8B64FF',color:'white', borderRadius:10, overflow:'hidden', borderWidth:2, borderColor:'white'}}>Hourly</Text>
-          <Text style={{ padding:5,backgroundColor:'#8EA2C2',color:'white', borderRadius:10, overflow:'hidden',borderWidth:2, borderColor:'#8EA2C2'}}>Daily</Text>
-          <Text style={{ padding:5,backgroundColor:'#8EA2C2',color:'white', borderRadius:10, overflow:'hidden',borderWidth:2, borderColor:'#8EA2C2'}}>Weekly</Text>
-          <Text style={{ padding:5,backgroundColor:'#8EA2C2',color:'white', borderRadius:10, overflow:'hidden',borderWidth:2, borderColor:'#8EA2C2'}}>Monthly</Text>
+        <View style={{
+          alignSelf: 'center',
+          width: '90%',
+          justifyContent: 'space-between',
+          marginTop: 20,
+          flexDirection: 'row'
+        }}>
+          <Text style={{
+            padding: 5,
+            backgroundColor: '#8B64FF',
+            color: 'white',
+            borderRadius: 10,
+            overflow: 'hidden',
+            borderWidth: 2,
+            borderColor: 'white'
+          }}>Hourly</Text>
+          <Text style={{
+            padding: 5,
+            backgroundColor: '#8EA2C2',
+            color: 'white',
+            borderRadius: 10,
+            overflow: 'hidden',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>Daily</Text>
+          <Text style={{
+            padding: 5,
+            backgroundColor: '#8EA2C2',
+            color: 'white',
+            borderRadius: 10,
+            overflow: 'hidden',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>Weekly</Text>
+          <Text style={{
+            padding: 5,
+            backgroundColor: '#8EA2C2',
+            color: 'white',
+            borderRadius: 10,
+            overflow: 'hidden',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>Monthly</Text>
         </View>
 
-        <View style={{height:1 , backgroundColor:'#8EA2C2', width:'90%', alignSelf:'center', marginTop: 20}}/>
+        <View style={{height: 1, backgroundColor: '#8EA2C2', width: '90%', alignSelf: 'center', marginTop: 20}}/>
 
-        <ScrollView horizontal={true}  style={{alignSelf:'center', width:'90%', height:60, marginTop:20, flexGrow:0 ,flexDirection:'row'}}>
-           <View style={styles.countryActive}>
-             <Text style={{color:'white'}}>USA</Text>
-           </View>
-
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>MEX</Text>
+        <ScrollView horizontal={true} style={{
+          alignSelf: 'center',
+          width: '90%',
+          height: 60,
+          marginTop: 20,
+          flexGrow: 0,
+          flexDirection: 'row'
+        }}>
+          <View style={styles.countryActive}>
+            <Text style={{color: 'white'}}>USA</Text>
           </View>
 
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>PH</Text>
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>MEX</Text>
           </View>
 
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>AUS</Text>
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>PH</Text>
           </View>
 
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>USA</Text>
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>AUS</Text>
           </View>
 
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>USA</Text>
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>USA</Text>
           </View>
 
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>USA</Text>
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>USA</Text>
           </View>
 
-          <View style={{backgroundColor:'#8EA2C2', marginLeft:20, height:50, width:50, borderRadius:50, justifyContent:'center',alignItems:'center',borderWidth:2, borderColor:'#8EA2C2'}}>
-            <Text style={{color:'white'}}>USA</Text>
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>USA</Text>
+          </View>
+
+          <View style={{
+            backgroundColor: '#8EA2C2',
+            marginLeft: 20,
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: '#8EA2C2'
+          }}>
+            <Text style={{color: 'white'}}>USA</Text>
           </View>
 
         </ScrollView>
 
-        <View style={{alignSelf:'center', width:'90%', justifyContent: 'space-between', marginTop:20, flexDirection:'row'}}>
-          <View style={{marginLeft:10,marginRight:10,flex:1, borderWidth:1, borderColor:'white', padding:10,borderRadius:20,borderWidth:2, borderColor:'#fff'}}>
-            <Text style={{textAlign:'center',color:'white'}}>Watch Time</Text>
+        <View style={{
+          alignSelf: 'center',
+          width: '90%',
+          justifyContent: 'space-between',
+          marginTop: 20,
+          flexDirection: 'row'
+        }}>
+          <View style={{
+            marginLeft: 10,
+            marginRight: 10,
+            flex: 1,
+            borderWidth: 1,
+            borderColor: 'white',
+            padding: 10,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }}>
+            <Text style={{textAlign: 'center', color: 'white'}}>Watch Time</Text>
           </View>
-          <View style={{marginLeft:10,marginRight:10,flex:1, borderWidth:1, borderColor:'white', padding:10,borderRadius:20,borderWidth:2, borderColor:'#fff'}}>
-            <Text style={{textAlign:'center',color:'white'}}>View</Text>
+          <View style={{
+            marginLeft: 10,
+            marginRight: 10,
+            flex: 1,
+            borderWidth: 1,
+            borderColor: 'white',
+            padding: 10,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }}>
+            <Text style={{textAlign: 'center', color: 'white'}}>View</Text>
           </View>
 
         </View>
-        <View style={{alignSelf:'center', width:'90%', justifyContent: 'space-between', marginTop:20, flexDirection:'row'}}>
-          <View style={{marginLeft:10,marginRight:10,flex:1, borderWidth:1, borderColor:'white', padding:10,borderRadius:20,borderWidth:2, borderColor:'#fff'}}>
-            <Text style={{textAlign:'center',color:'white'}}>Clickthrough</Text>
+        <View style={{
+          alignSelf: 'center',
+          width: '90%',
+          justifyContent: 'space-between',
+          marginTop: 20,
+          flexDirection: 'row'
+        }}>
+          <View style={{
+            marginLeft: 10,
+            marginRight: 10,
+            flex: 1,
+            borderWidth: 1,
+            borderColor: 'white',
+            padding: 10,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }}>
+            <Text style={{textAlign: 'center', color: 'white'}}>Clickthrough</Text>
           </View>
-          <View style={{marginLeft:10,marginRight:10,flex:1, borderWidth:1, borderColor:'white', padding:10,borderRadius:20,borderWidth:2, borderColor:'#fff'}}>
-            <Text style={{textAlign:'center',color:'white'}}>Pause Duration</Text>
+          <View style={{
+            marginLeft: 10,
+            marginRight: 10,
+            flex: 1,
+            borderWidth: 1,
+            borderColor: 'white',
+            padding: 10,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }}>
+            <Text style={{textAlign: 'center', color: 'white'}}>Pause Duration</Text>
           </View>
 
         </View>
@@ -145,16 +340,16 @@ export default class Directory extends Component {
 
 
 const styles = StyleSheet.create({
-  countryActive:{
-    backgroundColor:'#8B64FF',
-    marginLeft:20,
-    height:50,
-    width:50,
-    borderRadius:50,
-    justifyContent:'center',
-    alignItems:'center',
-    borderWidth:2,
-    borderColor:'white'
+  countryActive: {
+    backgroundColor: '#8B64FF',
+    marginLeft: 20,
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white'
   },
   listStyle: {
     borderBottomColor: "#fff",
