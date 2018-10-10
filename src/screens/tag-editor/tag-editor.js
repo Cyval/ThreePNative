@@ -17,7 +17,8 @@ import {
   Image,
   Modal,
   Animated,
-  Easing, AsyncStorage
+  Easing, AsyncStorage,
+  TextInput
 } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content, Accordion } from 'native-base';
 import Video from 'react-native-video';
@@ -37,6 +38,7 @@ import chevron from '../../assets/chevron-down.png';
 import NavBar from '../../components/Navbar/Navbar';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
+import axios from "axios/index";
 
 
 export default class VideoPlayer extends Component {
@@ -76,13 +78,16 @@ export default class VideoPlayer extends Component {
       percentage: {x: 0, y: 0},
       modalVisible: false,
       tagsModalVisible: false,
+      tagDetailsModalVisible: false,
       tagActive: false,
       prevTagActive: true,
       tagSeconds: 4,
       tags: [], // Fetch array from tags data when available
       videoDimensions: {width: 0, height: 0},
       videoOrientation: orientation,
-     }
+      userData: {},
+      videoData: {}
+    }
   }
 
   onLoad(data) {
@@ -239,6 +244,12 @@ export default class VideoPlayer extends Component {
   tagOptionsModal(e) {
     this.setState({
       modalVisible: true
+    })
+  }
+
+  toggleTagDetailsModal(e) {
+    this.setState({
+      tagDetailsModalVisible: true
     })
   }
 
@@ -411,6 +422,45 @@ export default class VideoPlayer extends Component {
 
   }
 
+  detailsModalStyle() {
+    if (this.state.orientation === 'portrait') {
+      return {
+        height: '50%',
+        width: '80%',
+        backgroundColor: 'rgba(180,180,180,0.7)',
+        borderRadius: 10,
+        // marginLeft: '2.5%',
+        alignSelf: 'center',
+        justifyContent: 'center',
+        marginTop: '25%'
+      }
+    } else {
+      if (this.state.percentage.x > 50) {
+        return {
+          height: '80%',
+          width: '80%',
+          backgroundColor: 'rgba(180,180,180,0.7)',
+          borderRadius: 10,
+          // marginLeft: '2.5%',
+          alignSelf: 'center',
+          justifyContent: 'center',
+          marginTop: '25%'
+        }
+      } else {
+        return {
+          height: '80%',
+          width: '45%',
+          backgroundColor: 'rgba(180,180,180,0.7)',
+          borderRadius: 10,
+          marginLeft: '52.5%',
+          justifyContent: 'center',
+          marginTop: '5%'
+        }
+      }
+    }
+
+  }
+
   setTagSeconds(value) {
     this.setState({
       tagSeconds: value
@@ -517,7 +567,36 @@ export default class VideoPlayer extends Component {
     // Orientation.lockToPortrait();
     // Orientation.lockToLandscapeRight();
     // Orientation.addOrientationListener(this._orientationDidChange.bind(this));
+    this._retrieveData();
   }
+
+  _retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userData');
+      if (value !== null) {
+        // We have data!!
+        const data = JSON.parse(value);
+        this.setState({userData: data});
+        axios.get('http://13.229.84.38/api/v1/videos/'+this.state.vidId,
+          {
+            headers: {
+              'x-auth-token': data.authToken,
+              'x-user-id': data.userId,
+            }
+          }).then((response) => {
+            if (response.data) {
+              this.setState({
+                videoData: response.data.data,
+                tags: response.data.data.tags
+              })
+            }
+
+        })
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
 
   _orientationDidChange(orientation) {
     this.setState({
@@ -555,12 +634,14 @@ export default class VideoPlayer extends Component {
           borderWidth: 3,
           borderRadius: 20,
           borderColor: 'white',
-          width: '80%',
+          backgroundColor: '#FFF',
+          color: '#CCC',
+          width: '100%',
           padding: 10,
-        }}>
-          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>TagID: {dataArray.tagId}</Text>
-          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>Duration: {dataArray.tagDuration}</Text>
-          <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>Type: {dataArray.type}</Text>
+        }} onClick={this.toggleTagDetailsModal.bind(this)}>
+          <Text style={{alignSelf: 'center', color: '#CCC', fontSize: 20}}>TagID: {dataArray.tagId}</Text>
+          <Text style={{alignSelf: 'center', color: '#CCC', fontSize: 20}}>Duration: {dataArray.tagDuration}</Text>
+          <Text style={{alignSelf: 'center', color: '#CCC', fontSize: 20}}>Type: {dataArray.type}</Text>
         </View>
       </View>
     );
@@ -574,8 +655,6 @@ export default class VideoPlayer extends Component {
 
     const vidUrl = `https://s3-ap-southeast-1.amazonaws.com/3p-videos/videos/${this.props.navigation.getParam('vidId', '0')}.${this.props.navigation.getParam('fileType', 'MOV')}`;
 
-    console.log(vidUrl);
-    console.log("tagActive", tagActive);
     return (
       <Container>
 
@@ -646,6 +725,72 @@ export default class VideoPlayer extends Component {
             </View>
           </View>
         </Modal>
+
+
+        {/*MODAL FOR TAG DETAILS*/}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.tagDetailsModalVisible}
+          supportedOrientations={['portrait','landscape']}
+          onRequestClose={() => {
+            alert('Modal has been closed.');
+          }}>
+          <View style={this.detailsModalStyle()}>
+            <View style={{alignSelf: 'center'}}>
+
+              <TouchableWithoutFeedback onPress={()=>this.setState({tagDetailsModalVisible:false})}>
+                <IconF style={{ position:'relative',zIndex:99999,
+                  alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
+              </TouchableWithoutFeedback>
+
+              <View style={{width: '50%'}}>
+
+                <Text style={modalStyle.headerTitle}>TAG INFORMATION</Text>
+
+                <View style={modalStyle.tagTypes}>
+                  <View style={modalStyle.tagColumn}>
+                    <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'red')}>
+                      <View style={modalStyle.redTag} />
+                    </TouchableWithoutFeedback>
+                    <Text style={modalStyle.tagLabel}>"Buy Now"</Text>
+                  </View>
+                  <View style={modalStyle.tagColumn}>
+                    <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'blue')}>
+                      <View style={modalStyle.blueTag} />
+                    </TouchableWithoutFeedback>
+                    <Text style={modalStyle.tagLabel}>"Track Music"</Text>
+                  </View>
+                  <View style={modalStyle.tagColumn}>
+                    <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'green')}>
+                      <View style={modalStyle.greenTag} />
+                    </TouchableWithoutFeedback>
+                    <Text style={modalStyle.tagLabel}>"More Info"</Text>
+                  </View>
+                </View>
+
+                <View style={{backgroundColor: '#FFF', borderRadius: 20}}>
+                  <Text style={{fontSize: 15}}>CONFIRM</Text>
+                </View>
+
+              </View>
+
+              <View style={{width: '50%'}}>
+                <TextInput
+                  style={styles.inputBox}
+                  onChangeText={(projectTitle) => this.setState({projectTitle})}
+                  value={this.state.projectTitle}
+                  placeholder={'Project Title'}
+                  placeholderTextColor={'#a4a4a4'}
+                />
+
+              </View>
+
+
+            </View>
+          </View>
+        </Modal>
+
 
         {/*MODAL FOR TAG DIRECTORY*/}
         <Modal
@@ -806,12 +951,11 @@ export default class VideoPlayer extends Component {
 const accordionStyle = StyleSheet.create({
   listStyle: {
     borderBottomColor: "#fff",
-    paddingBottom: 10,
     alignSelf: 'center',
-    borderBottomWidth: 2,
     width: '90%',
-    marginBottom: 20,
-    color: "white"
+    color: "white",
+    marginTop: 10,
+    marginBottom: 10,
   },
   title: {
     color: 'white',
@@ -824,17 +968,19 @@ const accordionStyle = StyleSheet.create({
 
 const tagDirectory = StyleSheet.create({
   modalStyle: {
-    height: '90%',
-    width: '45%',
-    backgroundColor: 'rgba(225,225,225,0.6)',
-    borderRadius: 5,
-    marginLeft: '45%',
-    marginTop: '2.5%'
+    height: '100%',
+    width: '50%',
+    backgroundColor: 'rgba(46,44,76,0.9)',
+    borderRadius: 0,
+    marginLeft: '50%',
+    marginTop: '2.5%',
+    fontFamily: 'GillSans'
   },
   header: {
     flex: 0,
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    fontFamily: 'HelveticaNeue'
   },
   headerIcon: {
     height: 24,
@@ -1156,8 +1302,20 @@ const styles = StyleSheet.create({
     width: '90%',
     resizeMode: 'contain',
     alignSelf: 'center',
-  }
+  },
+  inputBox: {
+    backgroundColor: '#051c40',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    color: 'white',
+    width: '90%',
+    textAlign: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
 });
+
 //
 // const sliderStyle = StyleSheet.create({
 //   track: {
