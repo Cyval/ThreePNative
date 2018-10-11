@@ -1,5 +1,6 @@
 package com.threepnative;
 
+import com.reactlibrary.RNThumbnailPackage;
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
