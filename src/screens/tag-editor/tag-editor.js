@@ -13,7 +13,7 @@ import {
   Image,
   Modal,
   Animated,
-  Easing,
+  Easing, AsyncStorage,
   TextInput
 } from 'react-native';
 import { Container, Accordion } from 'native-base';
@@ -29,7 +29,8 @@ import crosshair from '../../assets/crosshair.png';
 import chevron from '../../assets/chevron-down.png';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
-
+import axios from 'axios/index';
+import _ from 'lodash';
 
 export default class VideoPlayer extends Component {
   constructor(props) {
@@ -76,14 +77,19 @@ export default class VideoPlayer extends Component {
       videoDimensions: {width: 0, height: 0},
       videoOrientation: orientation,
       userData: {},
-      videoData: {}
+      videoData: {},
+      editTagIndex: 0,
+      editTagId: '',
+      editTagTitle: '',
+      editTagInformation: '',
+      editTagSourceUrl: '',
+      editTagType: '',
+      editTagDuration: '',
     }
   }
 
   onLoad(data) {
-    console.log(data)
     Orientation.getOrientation((err, orientation) => {
-      console.log(orientation)
       this.setState({duration: data.duration, videoDimensions: data.naturalSize, videoOrientation: orientation});
     });
   }
@@ -194,7 +200,6 @@ export default class VideoPlayer extends Component {
   }
 
   handlePress(e){
-    console.log("handlePress")
     if (this.state.paused && this.state.tagActive) {
       // Handle tagging
       let {locationX, locationY} = e.nativeEvent;
@@ -209,8 +214,8 @@ export default class VideoPlayer extends Component {
         x: Math.round((locationX*100)/width * 100) / 100,
         y: Math.round((locationY*100)/height * 100) / 100
       };
-
-      console.log("coords", coords, "percentage", percentage);
+      //
+      // console.log("coords", coords, "percentage", percentage);
 
       this.setState({
         coords,
@@ -237,15 +242,26 @@ export default class VideoPlayer extends Component {
     })
   }
 
-  toggleTagDetailsModal(e) {
+  toggleTagDetailsModal(dataArray, e) {
+    let {tagId, information, sourceUrl, type, tagDuration, endTime, title} = dataArray;
     this.setState({
-      tagDetailsModalVisible: true
+      tagsModalVisible: false,
+      editTagId: tagId,
+      editTagInformation: information,
+      editTagSourceUrl: sourceUrl,
+      editTagType: type,
+      editTagDuration: tagDuration,
+      editTagEndtime: endTime,
+      editTagTitle: title
+    }, ()=> {
+      this.setState({
+        tagDetailsModalVisible: true
+      })
     })
   }
 
   measureView(e) {
     let {width, height } = e.nativeEvent.layout;
-    console.log(width, height)
     this.setState({
       playerSize: {width, height}
     })
@@ -287,8 +303,6 @@ export default class VideoPlayer extends Component {
 
   chevronStyle() {
 
-    console.log(this.state.tagActive)
-
     let spinValue = new Animated.Value(0);
 
     // First set up animation
@@ -314,13 +328,13 @@ export default class VideoPlayer extends Component {
     });
 
     if (this.state.tagActive) {
-      console.log([!this.state.tagActive ? '0deg' : '180deg', '180deg'])
+      // console.log([!this.state.tagActive ? '0deg' : '180deg', '180deg'])
 
       return  {
         transform: [{rotate: '180deg'}]
       }
     } else {
-      console.log([this.state.tagActive ? '180deg' : '0deg', '0deg'])
+      // console.log([this.state.tagActive ? '180deg' : '0deg', '0deg'])
       return {
         transform: [{rotate: '0deg'}]
       }
@@ -413,41 +427,41 @@ export default class VideoPlayer extends Component {
   }
 
   detailsModalStyle() {
-    if (this.state.orientation === 'portrait') {
-      return {
-        height: '50%',
-        width: '80%',
-        backgroundColor: 'rgba(180,180,180,0.7)',
-        borderRadius: 10,
-        // marginLeft: '2.5%',
-        alignSelf: 'center',
-        justifyContent: 'center',
-        marginTop: '25%'
-      }
-    } else {
-      if (this.state.percentage.x > 50) {
+    // if (this.state.orientation === 'portrait') {
+    //   return {
+    //     height: '50%',
+    //     width: '80%',
+    //     backgroundColor: 'rgba(180,180,180,0.7)',
+    //     borderRadius: 10,
+    //     // marginLeft: '2.5%',
+    //     alignSelf: 'center',
+    //     justifyContent: 'center',
+    //     marginTop: '25%'
+    //   }
+    // } else {
+    //   if (this.state.percentage.x > 50) {
+    //     return {
+    //       height: '80%',
+    //       width: '80%',
+    //       backgroundColor: 'rgba(180,180,180,0.7)',
+    //       borderRadius: 10,
+    //       // marginLeft: '2.5%',
+    //       alignSelf: 'center',
+    //       justifyContent: 'center',
+    //       marginTop: '25%'
+    //     }
+    //   } else {
         return {
           height: '80%',
           width: '80%',
           backgroundColor: 'rgba(180,180,180,0.7)',
           borderRadius: 10,
-          // marginLeft: '2.5%',
           alignSelf: 'center',
-          justifyContent: 'center',
-          marginTop: '25%'
+          marginTop: '5%',
+          flexDirection: 'row'
         }
-      } else {
-        return {
-          height: '80%',
-          width: '45%',
-          backgroundColor: 'rgba(180,180,180,0.7)',
-          borderRadius: 10,
-          marginLeft: '52.5%',
-          justifyContent: 'center',
-          marginTop: '5%'
-        }
-      }
-    }
+      // }
+    // }
 
   }
 
@@ -495,11 +509,11 @@ export default class VideoPlayer extends Component {
       overlayWidth = playerWidth;
       overlayHeight = playerWidth * heightRatio;
     }
-
-    console.log('video', width, height);
-    console.log('video ratio', widthRatio, heightRatio);
-    console.log('player', playerWidth, playerHeight);
-    console.log('overlay', overlayWidth, overlayHeight);
+    //
+    // console.log('video', width, height);
+    // console.log('video ratio', widthRatio, heightRatio);
+    // console.log('player', playerWidth, playerHeight);
+    // console.log('overlay', overlayWidth, overlayHeight);
 
     return {
       width: overlayWidth,
@@ -529,9 +543,9 @@ export default class VideoPlayer extends Component {
     Axios.patch(`http://13.229.84.38/api/v1/videos/${vidId}`,{
       tags: tags
     }).then((res) => {
-      console.log(res);
+      // console.log(res);
     }).catch((error) => {
-      console.log(error);
+      // console.log(error);
     });
 
   }
@@ -614,27 +628,111 @@ export default class VideoPlayer extends Component {
     );
   };
 
-  _renderContent = (dataArray) => {
+  _renderTagTypeText = (type) => {
+    let text = "";
+    switch(type) {
+
+      case "green":
+        text = "More Info";
+        break;
+      case "blue":
+        text = "Track Music";
+        break;
+      case "red":
+        text = "Buy Now";
+        break;
+      default:
+        text = "";
+        break;
+    }
+    return text;
+  };
+
+  _renderTagTypeCircle = (type) => {
+    switch(type) {
+
+      case "green":
+        return <View style={modalStyle.greenTag} />
+        break;
+      case "blue":
+        return <View style={modalStyle.blueTag} />
+        break;
+      case "red":
+        return <View style={modalStyle.redTag} />
+        break;
+      default:
+        return null;
+        break;
+    }
+  };
+
+  _renderContent = (dataArray, index) => {
     return (
-      <View>
+      <View style={{
+        marginBottom: 20,
+        borderColor: 'white',
+        backgroundColor: '#FFF',
+        color: '#555',
+        padding: 10,
+      }}>
         <View style={{
           justifyContent: 'center',
-          marginBottom: 20,
           alignSelf: 'center',
-          borderWidth: 3,
-          borderRadius: 20,
-          borderColor: 'white',
-          backgroundColor: '#FFF',
-          color: '#CCC',
           width: '100%',
-          padding: 10,
-        }} onClick={this.toggleTagDetailsModal.bind(this)}>
-          <Text style={{alignSelf: 'center', color: '#CCC', fontSize: 20}}>TagID: {dataArray.tagId}</Text>
-          <Text style={{alignSelf: 'center', color: '#CCC', fontSize: 20}}>Duration: {dataArray.tagDuration}</Text>
-          <Text style={{alignSelf: 'center', color: '#CCC', fontSize: 20}}>Type: {dataArray.type}</Text>
+          flexDirection: 'row'
+        }} onPress={this.toggleTagDetailsModal.bind(this, dataArray)}>
+          <Text style={{alignSelf: 'center', color: '#333', fontSize: 20, flex: 1, flexDirection: 'row', fontWeight: 'bold'
+          }} onPress={this.toggleTagDetailsModal.bind(this, dataArray)}>{moment.utc(Math.floor(dataArray.startTime)*1000).format('HH:mm:ss')}</Text>
+          <Text style={{alignSelf: 'center', color: '#555', fontSize: 18, flex: 1, flexDirection: 'row'}}
+           onPress={this.toggleTagDetailsModal.bind(this, dataArray)}>"{this._renderTagTypeText(dataArray.type)}"</Text>
+          <View style={{alignSelf: 'flex-end', flex: 1, flexDirection: 'row'}}
+           onPress={this.toggleTagDetailsModal.bind(this, dataArray)}>{this._renderTagTypeCircle(dataArray.type)}</View>
         </View>
+
+        <Text style={{color: '#555'}}>Title: {dataArray.title}</Text>
+        <Text style={{color: '#555', minHeight: 20}}>Info: {dataArray.information}</Text>
+        <Text style={{color: '#555'}}>Source URL: {dataArray.sourceURL}</Text>
+
       </View>
     );
+  }
+
+  updateEditTag() {
+
+    let {tags, editTagDuration, editTagId, editTagInformation, editTagTitle, editTagType, editTagSourceUrl} = this.state;
+
+    let index = _.findIndex(tags, {tagId: editTagId})
+
+    if (index >= 0) { //Tag Found
+
+      tags[index].information = editTagInformation;
+      tags[index].sourceUrl = editTagSourceUrl;
+      tags[index].endTime = tags[index].startTime + editTagDuration;
+      tags[index].tagDuration = editTagDuration;
+      tags[index].title = editTagTitle;
+      tags[index].type = editTagType;
+
+      let vidId = this.props.navigation.getParam('vidId', '0');
+      //Patch video ID
+      Axios.patch(`http://13.229.84.38/api/v1/videos/${vidId}`,{
+        tags: tags
+      }).then((res) => {
+
+        this.setState({
+          tagDetailsModalVisible: false
+        });
+
+      }).catch((error) => {
+        // console.log(error);
+      });
+    } else {
+
+      this.setState({
+        tagDetailsModalVisible: false
+      });
+
+    }
+
   }
 
 
@@ -726,58 +824,73 @@ export default class VideoPlayer extends Component {
           onRequestClose={() => {
             alert('Modal has been closed.');
           }}>
+          <TouchableWithoutFeedback onPress={()=>this.setState({tagDetailsModalVisible:false})}>
+            <IconF style={{ position:'relative',zIndex:99999,
+              alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
+          </TouchableWithoutFeedback>
+
           <View style={this.detailsModalStyle()}>
-            <View style={{alignSelf: 'center'}}>
+            {/*<View style={{alignSelf: 'center'}}>*/}
 
-              <TouchableWithoutFeedback onPress={()=>this.setState({tagDetailsModalVisible:false})}>
-                <IconF style={{ position:'relative',zIndex:99999,
-                  alignSelf: 'flex-end', marginRight: -30}} name={'times'} color={'#8EA2C2'} size={25}/>
-              </TouchableWithoutFeedback>
-
-              <View style={{width: '50%'}}>
+              <View style={{width: '50%', padding: '2%', justifyContent: 'center', textAlign: 'center'}}>
 
                 <Text style={modalStyle.headerTitle}>TAG INFORMATION</Text>
 
-                <View style={modalStyle.tagTypes}>
+                <Text style={{color: '#FFF', fontSize: 18, textAlign: 'center'}}>VIDEO TAG TYPES</Text>
+
+                <View style={[modalStyle.tagTypes, {marginBottom: 20}]}>
                   <View style={modalStyle.tagColumn}>
-                    <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'red')}>
-                      <View style={modalStyle.redTag} />
+                    <TouchableWithoutFeedback onPress={() => this.setState({editTagType: 'red'})}>
+                      <View style={[modalStyle.redTag, {borderColor: '#fff', borderWidth: this.state.editTagType === 'red' ? 5 : 0}]} />
                     </TouchableWithoutFeedback>
-                    <Text style={modalStyle.tagLabel}>"Buy Now"</Text>
                   </View>
                   <View style={modalStyle.tagColumn}>
-                    <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'blue')}>
-                      <View style={modalStyle.blueTag} />
+                    <TouchableWithoutFeedback onPress={() => this.setState({editTagType: 'blue'})}>
+                      <View style={[modalStyle.blueTag, {borderColor: '#fff', borderWidth: this.state.editTagType === 'blue' ? 5 : 0}]} />
                     </TouchableWithoutFeedback>
-                    <Text style={modalStyle.tagLabel}>"Track Music"</Text>
                   </View>
                   <View style={modalStyle.tagColumn}>
-                    <TouchableWithoutFeedback onPress={this.handleTagTypeButton.bind(this, 'green')}>
-                      <View style={modalStyle.greenTag} />
+                    <TouchableWithoutFeedback onPress={() => this.setState({editTagType: 'green'})}>
+                      <View style={[modalStyle.greenTag, {borderColor: '#fff', borderWidth: this.state.editTagType === 'green' ? 5 : 0}]} />
                     </TouchableWithoutFeedback>
-                    <Text style={modalStyle.tagLabel}>"More Info"</Text>
                   </View>
                 </View>
 
-                <View style={{backgroundColor: '#FFF', borderRadius: 20}}>
-                  <Text style={{fontSize: 15}}>CONFIRM</Text>
-                </View>
+                <TouchableWithoutFeedback onPress={this.updateEditTag.bind(this)}>
+                  <View style={{backgroundColor: '#FFF', borderRadius: 10,  width: '60%', padding: 10, alignSelf: 'center'}}>
+                    <Text style={{fontSize: 20, textAlign: 'center'}}>CONFIRM</Text>
+                  </View>
+                </TouchableWithoutFeedback>
 
               </View>
 
-              <View style={{width: '50%'}}>
+              <View style={{width: '50%', padding: '2%'}}>
                 <TextInput
                   style={styles.inputBox}
-                  onChangeText={(projectTitle) => this.setState({projectTitle})}
-                  value={this.state.projectTitle}
-                  placeholder={'Project Title'}
-                  placeholderTextColor={'#a4a4a4'}
+                  onChangeText={(editTagTitle) => this.setState({editTagTitle})}
+                  value={this.state.editTagTitle}
+                  placeholder={'TITLE'}
+                  placeholderTextColor={'#ccc'}
+                />
+                <TextInput
+                  style={styles.inputBox}
+                  onChangeText={(editTagInformation) => this.setState({editTagInformation})}
+                  value={this.state.editTagInformation}
+                  placeholder={'INFORMATION'}
+                  placeholderTextColor={'#ccc'}
+                />
+                <TextInput
+                  style={styles.inputBox}
+                  onChangeText={(editTagSourceUrl) => this.setState({editTagSourceUrl})}
+                  value={this.state.editTagSourceUrl}
+                  placeholder={'SOURCE URL'}
+                  placeholderTextColor={'#ccc'}
                 />
 
               </View>
 
 
-            </View>
+            {/*</View>*/}
           </View>
         </Modal>
 
@@ -813,6 +926,11 @@ export default class VideoPlayer extends Component {
                 renderHeader={this._renderHeader}
                 renderContent={this._renderContent}
               />
+              <TouchableWithoutFeedback onPress={()=>{}}>
+                <View style={{backgroundColor: '#FFF', borderRadius: 10,  width: '60%', padding: 10, alignSelf: 'center'}}>
+                  <Text style={{fontSize: 20, textAlign: 'center'}}>PREVIEW</Text>
+                </View>
+              </TouchableWithoutFeedback>
             </View>
 
           </View>
@@ -1023,7 +1141,8 @@ const modalStyle = StyleSheet.create({
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: {width: 0, height: 3},
-    textShadowRadius: 5
+    textShadowRadius: 5,
+    textAlign: 'center'
   },
   durationContainer: {
     flex: 0,
@@ -1300,8 +1419,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: 'white',
     width: '90%',
-    textAlign: 'center',
+    textAlign: 'left',
     alignSelf: 'center',
     marginBottom: 20,
+    padding: 10,
   },
 });
