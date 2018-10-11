@@ -51,7 +51,8 @@ export default class Directory extends Component {
       selectedCountry: 'USA',
       selectedChartPeriod: 'Hourly',
       countries: ['USA', 'UK', 'MEX', 'AUS', 'PH'],
-      chartPeriods: ['Hourly', 'Daily', 'Weekly', 'Monthly']
+      chartPeriods: ['Hourly', 'Daily', 'Weekly', 'Monthly'],
+      showDateSelectionModal: false
     }
   }
 
@@ -105,7 +106,11 @@ export default class Directory extends Component {
           alignSelf: 'center'
         }}>
           <Text style={{color: '#8EA2C2', fontSize: 15, fontWeight: 'bold'}}>Jun 4 - Aug 10</Text>
-          <Icon style={{color: '#8EA2C2'}} name={'calendar'} size={20}/>
+          <TouchableWithoutFeedback onPress={() => this.setState({ showDateSelectionModal: true })}>
+            <View>
+              <Icon style={{color: '#8EA2C2'}} name={'calendar'} size={20}/>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
         <View style={{
           flexDirection: 'row',
@@ -150,42 +155,6 @@ export default class Directory extends Component {
           flexDirection: 'row'
         }}>
           { this.showChartPeriods() }
-          {/*<Text style={{*/}
-            {/*padding: 5,*/}
-            {/*backgroundColor: '#8B64FF',*/}
-            {/*color: 'white',*/}
-            {/*borderRadius: 10,*/}
-            {/*overflow: 'hidden',*/}
-            {/*borderWidth: 2,*/}
-            {/*borderColor: 'white'*/}
-          {/*}}>Hourly</Text>*/}
-          {/*<Text style={{*/}
-            {/*padding: 5,*/}
-            {/*backgroundColor: '#8EA2C2',*/}
-            {/*color: 'white',*/}
-            {/*borderRadius: 10,*/}
-            {/*overflow: 'hidden',*/}
-            {/*borderWidth: 2,*/}
-            {/*borderColor: '#8EA2C2'*/}
-          {/*}}>Daily</Text>*/}
-          {/*<Text style={{*/}
-            {/*padding: 5,*/}
-            {/*backgroundColor: '#8EA2C2',*/}
-            {/*color: 'white',*/}
-            {/*borderRadius: 10,*/}
-            {/*overflow: 'hidden',*/}
-            {/*borderWidth: 2,*/}
-            {/*borderColor: '#8EA2C2'*/}
-          {/*}}>Weekly</Text>*/}
-          {/*<Text style={{*/}
-            {/*padding: 5,*/}
-            {/*backgroundColor: '#8EA2C2',*/}
-            {/*color: 'white',*/}
-            {/*borderRadius: 10,*/}
-            {/*overflow: 'hidden',*/}
-            {/*borderWidth: 2,*/}
-            {/*borderColor: '#8EA2C2'*/}
-          {/*}}>Monthly</Text>*/}
         </View>
 
         <View style={{height: 1, backgroundColor: '#8EA2C2', width: '90%', alignSelf: 'center', marginTop: 20}}/>
@@ -273,6 +242,52 @@ export default class Directory extends Component {
           </View>
 
         </View>
+
+        <Modal
+          animationType="slide"
+          transparent
+          visible={this.state.showDateSelectionModal}
+          onRequestClose={() => {
+            return null
+          }}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalStyle}>
+              <Text style={styles.addTitle}>SELECT DATE</Text>
+              <TextInput
+                style={styles.addProjectInput}
+                onChangeText={(projectTitle) => this.setState({projectTitle})}
+                value={this.state.projectTitle}
+                placeholder={'Project Title'}
+                placeholderTextColor={'#a4a4a4'}
+              />
+              <View style={styles.buttonContainer}>
+                <View style={styles.addButton}>
+                  <Button
+                    onPress={() => {
+                      this.addProject()
+                    }}
+                    title="ADD"
+                    color="#051c40"
+                    style={{backgroundColor: 'red'}}
+                  />
+                </View>
+                <View style={styles.addButton}>
+                  <Button
+                    onPress={() => {
+                      this.setState({showDateSelectionModal: false})
+                    }}
+                    title="CANCEL"
+                    color="#051c40"
+                    style={{backgroundColor: 'red'}}
+                  />
+                </View>
+              </View>
+
+            </View>
+
+          </View>
+
+        </Modal>
 
       </ImageBackground>
     )
