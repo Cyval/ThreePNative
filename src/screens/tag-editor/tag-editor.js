@@ -4,12 +4,8 @@ import React, {
 } from 'react';
 
 import {
-  AlertIOS,
-  AppRegistry,
-  Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   ImageBackground,
@@ -17,28 +13,22 @@ import {
   Image,
   Modal,
   Animated,
-  Easing, AsyncStorage,
+  Easing,
   TextInput
 } from 'react-native';
-import { Container, Header, Left, Body, Right, Button, Icon, Title, Content, Accordion } from 'native-base';
+import { Container, Accordion } from 'native-base';
 import Video from 'react-native-video';
 import Slider from 'react-native-slider';
 import moment from 'moment';
-import ImageZoom from 'react-native-image-pan-zoom';
 import Orientation from 'react-native-orientation';
 
 import galaxyImage from '../../assets/galaxy.jpg';
-import dividerImage from '../../assets/divider.png';
-import titleDividerImage from '../../assets/title-divider.png';
-import editImage from '../../assets/edit.png';
 import tagImage from '../../assets/tag.png';
 import timerImage from '../../assets/timer.png';
 import crosshair from '../../assets/crosshair.png';
 import chevron from '../../assets/chevron-down.png';
-import NavBar from '../../components/Navbar/Navbar';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
-import axios from "axios/index";
 
 
 export default class VideoPlayer extends Component {
@@ -1315,114 +1305,3 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
-
-//
-// const sliderStyle = StyleSheet.create({
-//   track: {
-//     height: 36,
-//     borderRadius: 1,
-//     backgroundColor: '#77B95B',
-//   },
-//   thumb: {
-//     width: 10,
-//     height: 50,
-//     borderRadius: 1,
-//     backgroundColor: '#FFFFFF',
-//   }
-// });
-//
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'transparent',
-//   },
-//   fullScreen: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     top: -80,
-//     left: 0,
-//     bottom: 0,
-//     right: 0,
-//   },
-//   controls: {
-//     backgroundColor: "transparent",
-//     borderRadius: 5,
-//     position: 'absolute',
-//     top: 280,
-//     left: 0,
-//     right: 0,
-//   },
-//   progress: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     borderRadius: 3,
-//     overflow: 'hidden',
-//   },
-//   innerProgressCompleted: {
-//     height: 20,
-//     backgroundColor: '#cccccc',
-//   },
-//   innerProgressRemaining: {
-//     height: 20,
-//     backgroundColor: '#2C2C2C',
-//   },
-//   generalControls: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     overflow: 'hidden',
-//     paddingBottom: 10,
-//   },
-//   skinControl: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//   },
-//   rateControl: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//   },
-//   volumeControl: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//   },
-//   videoTime: {
-//     alignSelf: 'center',
-//     fontSize: 14,
-//     color: "white",
-//     paddingLeft: 2,
-//     paddingRight: 2,
-//     lineHeight: 12,
-//     paddingTop: 15,
-//     zIndex: 10,
-//     position: 'absolute',
-//   },
-//   resizeModeControl: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'center'
-//   },
-//   ignoreSilentSwitchControl: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'center'
-//   },
-//   controlOption: {
-//     alignSelf: 'center',
-//     fontSize: 11,
-//     color: "white",
-//     paddingLeft: 2,
-//     paddingRight: 2,
-//     lineHeight: 12,
-//   },
-//   nativeVideoControls: {
-//     top: 184,
-//     height: 300
-//   }
-// });
-
