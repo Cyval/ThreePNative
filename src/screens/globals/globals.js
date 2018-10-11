@@ -22,6 +22,8 @@ import React from "react";
 import galaxyImage from '../../assets/galaxy.jpg';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NavBar from '../../components/Navbar/Navbar';
+import CountryButton from '../../components/globals/CountryButton';
+import ChartPeriodButton from '../../components/globals/ChartPeriodButton';
 import axios from 'axios';
 
 const screenWidth = Dimensions.get('window').width;
@@ -46,8 +48,45 @@ export default class Directory extends Component {
     super(props);
     this.state = {
       list: [],
+      selectedCountry: 'USA',
+      selectedChartPeriod: 'Hourly',
+      countries: ['USA', 'UK', 'MEX', 'AUS', 'PH'],
+      chartPeriods: ['Hourly', 'Daily', 'Weekly', 'Monthly']
     }
+  }
 
+  showChartPeriods = () => {
+    return this.state.chartPeriods.map(period => {
+      return (
+        <ChartPeriodButton
+          key={period}
+          periodText={period}
+          selectedChartPeriod={this.state.selectedChartPeriod}
+          onChartPeriodSelect={() => this.setActiveChartPeriod(period)}
+        />
+      )
+    })
+  }
+
+  showCountryButtons = () => {
+    return this.state.countries.map(country => {
+      return (
+        <CountryButton
+          key={country}
+          countryText={country}
+          selectedCountry={this.state.selectedCountry}
+          onCountrySelect={() => this.setActiveCountry(country)}
+        />
+      )
+    })
+  }
+
+  setActiveCountry = (country) => {
+    this.setState({ selectedCountry: country});
+  }
+
+  setActiveChartPeriod = (period) => {
+    this.setState({ selectedChartPeriod: period });
   }
 
   render() {
@@ -92,6 +131,7 @@ export default class Directory extends Component {
             formatLabel={ value => `${value}` }
           />
           <BarChart
+            animate
             style={{ flex: 1, marginLeft: 20 }}
             spacingInner={0.3}
             data={ data }
@@ -109,42 +149,43 @@ export default class Directory extends Component {
           marginTop: 20,
           flexDirection: 'row'
         }}>
-          <Text style={{
-            padding: 5,
-            backgroundColor: '#8B64FF',
-            color: 'white',
-            borderRadius: 10,
-            overflow: 'hidden',
-            borderWidth: 2,
-            borderColor: 'white'
-          }}>Hourly</Text>
-          <Text style={{
-            padding: 5,
-            backgroundColor: '#8EA2C2',
-            color: 'white',
-            borderRadius: 10,
-            overflow: 'hidden',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>Daily</Text>
-          <Text style={{
-            padding: 5,
-            backgroundColor: '#8EA2C2',
-            color: 'white',
-            borderRadius: 10,
-            overflow: 'hidden',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>Weekly</Text>
-          <Text style={{
-            padding: 5,
-            backgroundColor: '#8EA2C2',
-            color: 'white',
-            borderRadius: 10,
-            overflow: 'hidden',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>Monthly</Text>
+          { this.showChartPeriods() }
+          {/*<Text style={{*/}
+            {/*padding: 5,*/}
+            {/*backgroundColor: '#8B64FF',*/}
+            {/*color: 'white',*/}
+            {/*borderRadius: 10,*/}
+            {/*overflow: 'hidden',*/}
+            {/*borderWidth: 2,*/}
+            {/*borderColor: 'white'*/}
+          {/*}}>Hourly</Text>*/}
+          {/*<Text style={{*/}
+            {/*padding: 5,*/}
+            {/*backgroundColor: '#8EA2C2',*/}
+            {/*color: 'white',*/}
+            {/*borderRadius: 10,*/}
+            {/*overflow: 'hidden',*/}
+            {/*borderWidth: 2,*/}
+            {/*borderColor: '#8EA2C2'*/}
+          {/*}}>Daily</Text>*/}
+          {/*<Text style={{*/}
+            {/*padding: 5,*/}
+            {/*backgroundColor: '#8EA2C2',*/}
+            {/*color: 'white',*/}
+            {/*borderRadius: 10,*/}
+            {/*overflow: 'hidden',*/}
+            {/*borderWidth: 2,*/}
+            {/*borderColor: '#8EA2C2'*/}
+          {/*}}>Weekly</Text>*/}
+          {/*<Text style={{*/}
+            {/*padding: 5,*/}
+            {/*backgroundColor: '#8EA2C2',*/}
+            {/*color: 'white',*/}
+            {/*borderRadius: 10,*/}
+            {/*overflow: 'hidden',*/}
+            {/*borderWidth: 2,*/}
+            {/*borderColor: '#8EA2C2'*/}
+          {/*}}>Monthly</Text>*/}
         </View>
 
         <View style={{height: 1, backgroundColor: '#8EA2C2', width: '90%', alignSelf: 'center', marginTop: 20}}/>
@@ -157,107 +198,8 @@ export default class Directory extends Component {
           flexGrow: 0,
           flexDirection: 'row'
         }}>
-          <View style={styles.countryActive}>
-            <Text style={{color: 'white'}}>USA</Text>
-          </View>
 
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>MEX</Text>
-          </View>
-
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>PH</Text>
-          </View>
-
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>AUS</Text>
-          </View>
-
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>USA</Text>
-          </View>
-
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>USA</Text>
-          </View>
-
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>USA</Text>
-          </View>
-
-          <View style={{
-            backgroundColor: '#8EA2C2',
-            marginLeft: 20,
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: '#8EA2C2'
-          }}>
-            <Text style={{color: 'white'}}>USA</Text>
-          </View>
+          { this.showCountryButtons() }
 
         </ScrollView>
 
