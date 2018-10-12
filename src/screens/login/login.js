@@ -21,6 +21,8 @@ import Axios from 'axios';
 import galaxyImage from '../../assets/galaxy.jpg';
 import Logo from '../../assets/logo.png';
 
+const API_URL = 'http://13.229.84.38';
+
 export default class LoginScreen extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,7 @@ export default class LoginScreen extends Component {
 
   login = () => {
     const {email, password} = this.state;
-    Axios.post('http://13.229.84.38/api/v1/login',{
+    Axios.post(`${API_URL}/api/v1/login`,{
       email,
       password
     }).then((res)=>{

@@ -1,6 +1,7 @@
 import {
   StyleSheet,
   Text,
+  Alert,
   View,
   ImageBackground,
   Image,
@@ -46,6 +47,7 @@ var options = {
 
 import CameraIcon from '../../assets/camera-icon.png'
 
+const API_URL = 'http://13.229.84.38';
 
 export default class Directory extends Component {
   constructor(props) {
@@ -58,12 +60,11 @@ export default class Directory extends Component {
       videoUri: '',
       loadingModal: false,
       progress: 0,
-      url: 'http://13.229.84.38',
       activeProject: '',
       orientation: '',
       confirmation: false,
       projectModal: false,
-      deleteProjectConfirmation:false
+      deleteProjectConfirmation: false
     }
 
   }
@@ -73,8 +74,8 @@ export default class Directory extends Component {
   }
 
 
-  deleteProject(){
-    axios.delete(`${this.state.url}/api/v1/projects/${this.state.activeProject}`).then(response => {
+  deleteProject() {
+    axios.delete(`${API_URL}/api/v1/projects/${this.state.activeProject}`).then(response => {
       if (response.data === true) {
         this._retrieveData();
         this.setState({projectModal: false})
@@ -92,7 +93,7 @@ export default class Directory extends Component {
 
     console.log(bodyFormData);
 
-    axios.post(`${this.state.url}/api/v1/projects/add`, {
+    axios.post(`${API_URL}/api/v1/projects/add`, {
       userId: this.state.userData.userId,
       projectName: this.state.projectTitle
     }).then(response => {
@@ -120,12 +121,23 @@ export default class Directory extends Component {
 
 
   deleteVideo(id) {
-    axios.delete(`${this.state.url}/api/v1/videos/${id}`).then(response => {
+    axios.delete(`${API_URL}/api/v1/videos/${id}`).then(response => {
       if (response.data === true) {
         this._retrieveData();
         this.setState({confirmation: false})
       }
     })
+  }
+
+  redirectToGlobalsPage = (projectId) => {
+    // Filter project with the same projectId and save videoIds to asyncstorage
+    const project = this.state.list
+      .filter(item => {
+        return projectId === item._id;
+      })[0];
+    const videoIds = project.videos.map(vid => vid.id);
+    AsyncStorage.setItem('video_ids_globals', JSON.stringify(videoIds));
+    this.props.navigation.navigate('Globals', { videoId: videoIds[0] });
   }
 
   _renderContent = (dataArray) => {
@@ -188,12 +200,22 @@ export default class Directory extends Component {
       <View>
         <View style={{alignItems: 'center', flexDirection: 'row', width: '90%', flexWrap: 'wrap', alignSelf: 'center'}}>
 
-          <View style={{justifyContent: 'center', width:'100%', marginBottom:30}}>
+          <View style={{justifyContent: 'center', width: '100%', marginBottom: 30}}>
             <TouchableWithoutFeedback onPress={() => {
-              this.setState({projectModal:true, activeProject: dataArray._id, activeProjectName: dataArray.projectName});
+              this.setState({
+                projectModal: true,
+                activeProject: dataArray._id,
+                activeProjectName: dataArray.projectName
+              });
             }}>
-              <View style={{flexDirection:'row',justifyContent: 'center', alignSelf: 'flex-end', color:'white', textAlign:'justify'}} >
-                <Text style={{ color:'white', textAlign:'justify', fontWeight:'bold'}}  > settings </Text>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                color: 'white',
+                textAlign: 'justify'
+              }}>
+                <Text style={{color: 'white', textAlign: 'justify', fontWeight: 'bold'}}> settings </Text>
                 <Icon name={'cog'} size={20} color={'white'}/>
               </View>
 
@@ -201,23 +223,21 @@ export default class Directory extends Component {
           </View>
           {vids}
         </View>
-        <TouchableWithoutFeedback onPress={()=>{
-          this.props.navigation.navigate('Globals');
-        }}>
-        <View style={{
-          justifyContent: 'center',
-          marginBottom: 20,
-          alignSelf: 'center',
-          borderWidth: 3,
-          borderRadius: 20,
-          borderColor: 'white',
-          width: '80%',
-          padding: 10,
-        }}>
+        <TouchableWithoutFeedback onPress={() => this.redirectToGlobalsPage(dataArray._id)}>
+          <View style={{
+            justifyContent: 'center',
+            marginBottom: 20,
+            alignSelf: 'center',
+            borderWidth: 3,
+            borderRadius: 20,
+            borderColor: 'white',
+            width: '80%',
+            padding: 10,
+          }}>
             <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>
               <Icon name={'globe'} size={30}/> GLOBAL
             </Text>
-        </View>
+          </View>
         </TouchableWithoutFeedback>
       </View>
     );
@@ -268,7 +288,6 @@ export default class Directory extends Component {
     });
   }
 
-
   uploadVideo() {
 
     const {source, videoTitle, videoUri, userData} = this.state;
@@ -289,7 +308,7 @@ export default class Directory extends Component {
     }
 
     axios({
-      url: 'http://13.229.84.38/api/v1/request-upload', headers: {
+      url: `${API_URL}/api/v1/request-upload`, headers: {
         'x-auth-token': userData.authToken,
         'x-user-id': userData.userId,
       }, method: 'post'
@@ -320,7 +339,7 @@ export default class Directory extends Component {
       };
 
       axios({
-        url: `${this.state.url}/api/v1/videos/add`,
+        url: `${API_URL}/api/v1/videos/add`,
         data: {
           title: videoTitle,
           projectId: this.state.activeProject,
@@ -377,7 +396,7 @@ export default class Directory extends Component {
         // We have data!!
         const data = JSON.parse(value);
         this.setState({userData: data});
-        axios.get('http://13.229.84.38/api/v1/projects',
+        axios.get(`${API_URL}/api/v1/projects`,
           {
             headers: {
               'x-auth-token': data.authToken,
@@ -516,7 +535,7 @@ export default class Directory extends Component {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.loadingModal}   onRequestClose={() => {
+          visible={this.state.loadingModal} onRequestClose={() => {
           return null
         }}>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
@@ -526,7 +545,7 @@ export default class Directory extends Component {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.projectModal}   onRequestClose={() => {
+          visible={this.state.projectModal} onRequestClose={() => {
           return null
         }}>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,.7)'}}>
@@ -539,12 +558,12 @@ export default class Directory extends Component {
               padding: 20
             }}>
               <View>
-                <Text style={{textAlign:'center', fontSize:30}}>{this.state.activeProjectName}</Text>
+                <Text style={{textAlign: 'center', fontSize: 30}}>{this.state.activeProjectName}</Text>
               </View>
 
               <Button
                 onPress={() => {
-                  this.setState({deleteProjectConfirmation:true, projectModal: false});
+                  this.setState({deleteProjectConfirmation: true, projectModal: false});
                 }}
                 title="Delete Project"
                 color="#051c40"
@@ -574,11 +593,11 @@ export default class Directory extends Component {
           confirmText="Yes, delete it"
           confirmButtonColor="#DD6B55"
           onCancelPressed={() => {
-            this.setState({confirmation:false});
+            this.setState({confirmation: false});
           }}
           onConfirmPressed={() => {
             this.deleteVideo(this.state.deleteId);
-            this.setState({confirmation:false});
+            this.setState({confirmation: false});
           }}
         />
         <AwesomeAlert
@@ -594,11 +613,11 @@ export default class Directory extends Component {
           confirmText="Yes, delete it"
           confirmButtonColor="#DD6B55"
           onCancelPressed={() => {
-            this.setState({ projectModal: true, deleteProjectConfirmation:false});
+            this.setState({projectModal: true, deleteProjectConfirmation: false});
           }}
           onConfirmPressed={() => {
             this.deleteProject();
-            this.setState({ deleteProjectConfirmation:false});
+            this.setState({deleteProjectConfirmation: false});
           }}
         />
       </ImageBackground>
