@@ -3,11 +3,12 @@ package com.threepnative;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.reactlibrary.RNThumbnailPackage;
-import com.imagepicker.ImagePickerPackage;
-import com.github.yamill.orientation.OrientationPackage;
-import com.oblador.vectoricons.VectorIconsPackage;
 import com.brentvatne.react.ReactVideoPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.reactlibrary.RNThumbnailPackage;
+import com.horcrux.svg.SvgPackage;
+import com.github.yamill.orientation.OrientationPackage;
+import com.imagepicker.ImagePickerPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -28,11 +29,12 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new RNThumbnailPackage(),
-            new ImagePickerPackage(),
-            new OrientationPackage(),
+            new ReactVideoPackage(),
             new VectorIconsPackage(),
-            new ReactVideoPackage()
+            new RNThumbnailPackage(),
+            new SvgPackage(),
+            new OrientationPackage(),
+            new ImagePickerPackage()
       );
     }
 
